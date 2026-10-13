@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, nextTick, onMounted, onUnmounted, ref } from 'vue'
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import {
   BrainCircuit,
@@ -21,6 +21,7 @@ import {
   X,
 } from 'lucide-vue-next'
 import { useStudent } from '@/composables/useStudent'
+import { readStorage, removeStorage, writeStorage } from '@/utils/storage'
 
 type NavItem = {
   to: string
@@ -32,7 +33,7 @@ type NavItem = {
 const route = useRoute()
 const router = useRouter()
 const authStorageKey = 'zx-resource-agent-authed'
-const isAuthed = ref(typeof window !== 'undefined' && sessionStorage.getItem(authStorageKey) === '1')
+const isAuthed = ref(readStorage('session', authStorageKey) === '1')
 const phone = ref('')
 const password = ref('')
 const captcha = ref('')
@@ -74,13 +75,13 @@ function submitLogin() {
   }
   if (studentId.value === 'demo') createFreshLearner()
   isAuthed.value = true
-  sessionStorage.setItem(authStorageKey, '1')
+  writeStorage('session', authStorageKey, '1')
 }
 
 function enterDemo() {
   studentId.value = 'demo'
   isAuthed.value = true
-  sessionStorage.setItem(authStorageKey, '1')
+  writeStorage('session', authStorageKey, '1')
   loginError.value = ''
   void router.replace('/')
 }
@@ -105,17 +106,20 @@ function handleShellKeydown(event: KeyboardEvent) {
 }
 
 function logout() {
-  sessionStorage.removeItem(authStorageKey)
+  removeStorage('session', authStorageKey)
   isAuthed.value = false
   settingsOpen.value = false
   void router.replace('/')
 }
 
+function enforceAuthenticatedRoute() {
+  if (!isAuthed.value && route.path !== '/') void router.replace('/')
+}
+
+watch([isAuthed, () => route.path], enforceAuthenticatedRoute, { immediate: true })
+
 onMounted(() => {
   window.addEventListener('keydown', handleShellKeydown)
-  if (!isAuthed.value && route.path !== '/') {
-    void router.replace('/')
-  }
 })
 
 onUnmounted(() => window.removeEventListener('keydown', handleShellKeydown))

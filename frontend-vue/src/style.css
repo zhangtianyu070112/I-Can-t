@@ -2087,3 +2087,13 @@ select {
     text-align: left;
   }
 }
+
+/* Keep compact controls comfortably tappable on phones without changing their
+   desktop presentation.  Icon and disclosure controls also receive a square
+   hit area so the visual icon can remain compact inside it. */
+@media (max-width: 720px) {
+  .portal-shell button { min-height: 44px !important; }
+  .portal-shell button[aria-label],
+  .portal-shell button[title],
+  .portal-shell button[aria-expanded] { min-width: 44px !important; }
+}
