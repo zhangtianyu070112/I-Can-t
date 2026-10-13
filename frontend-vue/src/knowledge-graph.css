@@ -361,6 +361,58 @@
   font-size: 12px;
 }
 
+.graph-zoom-tools {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 36px;
+  padding: 3px 5px;
+  border: 1px solid #d7e3f4;
+  border-radius: 12px;
+  background: #f8fbff;
+}
+
+.graph-zoom-tools button {
+  min-width: 32px;
+  min-height: 30px;
+  padding: 0 7px;
+  border: 0;
+  border-radius: 8px;
+  box-shadow: none;
+}
+
+.graph-zoom-tools button:hover {
+  transform: none;
+  box-shadow: none;
+  background: #eaf2ff;
+}
+
+.graph-zoom-value {
+  min-width: 42px;
+  color: #17325b;
+  font-size: 11px;
+  font-weight: 950;
+  text-align: center;
+}
+
+.graph-zoom-slider {
+  width: 78px;
+  accent-color: #2362ff;
+}
+
+.knowledge-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+
+.mobile-panel-backdrop {
+  display: none;
+}
+
 .graph-stage {
   position: relative;
   display: grid;
@@ -1179,12 +1231,18 @@
 }
 
 .graph-inner {
+  position: relative;
   min-height: 100%;
   background:
     linear-gradient(90deg,
       transparent 24.8%, rgba(204, 221, 244, 0.42) 25%, transparent 25.2%,
       transparent 49.8%, rgba(204, 221, 244, 0.42) 50%, transparent 50.2%,
       transparent 74.8%, rgba(204, 221, 244, 0.42) 75%, transparent 75.2%);
+}
+
+.graph-zoom-layer {
+  transform-origin: top left;
+  will-change: transform;
 }
 
 .lane-heads {
@@ -1207,6 +1265,11 @@
 
 .kg-node {
   cursor: pointer;
+}
+
+.kg-node:focus-visible {
+  outline: 3px solid #f59e0b;
+  outline-offset: 3px;
 }
 
 .kg-node.status-progressing {
@@ -1505,6 +1568,23 @@
     order: 2;
   }
 
+  .knowledge-course-map.show-filter-panel .course-filter-panel,
+  .knowledge-course-map.show-detail-panel .course-detail-panel {
+    position: relative;
+    z-index: 22;
+  }
+
+  .mobile-panel-backdrop {
+    position: fixed;
+    inset: 76px 0 0;
+    z-index: 20;
+    display: block;
+    border: 0;
+    border-radius: 0;
+    background: rgba(12, 34, 68, 0.28);
+    backdrop-filter: blur(2px);
+  }
+
   .mobile-panel-toggle {
     display: inline-flex !important;
   }
@@ -1541,6 +1621,17 @@
     justify-content: flex-start;
   }
 
+  .graph-zoom-tools {
+    flex: 1 1 100%;
+    justify-content: center;
+    order: 4;
+  }
+
+  .graph-zoom-slider {
+    flex: 1;
+    max-width: 160px;
+  }
+
   .course-stat-row {
     grid-template-columns: 1fr 1fr;
   }
@@ -1572,6 +1663,14 @@
   .graph-tools button {
     flex: 1;
     justify-content: center;
+  }
+
+  .graph-zoom-tools {
+    min-width: 0;
+  }
+
+  .graph-zoom-slider {
+    max-width: 116px;
   }
 }
 

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, nextTick, onMounted, onUnmounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import {
   BrainCircuit,
@@ -40,6 +40,8 @@ const showPassword = ref(false)
 const loginError = ref('')
 const captchaCode = '2VV3'
 const settingsOpen = ref(false)
+const settingsTrigger = ref<HTMLButtonElement | null>(null)
+const settingsPanel = ref<HTMLElement | null>(null)
 const { studentId, major, goals, createFreshLearner } = useStudent()
 
 const nav: NavItem[] = [
@@ -83,6 +85,25 @@ function enterDemo() {
   void router.replace('/')
 }
 
+function toggleSettings() {
+  settingsOpen.value = !settingsOpen.value
+  if (settingsOpen.value) nextTick(() => settingsPanel.value?.focus())
+  else nextTick(() => settingsTrigger.value?.focus())
+}
+
+function closeSettings() {
+  if (!settingsOpen.value) return
+  settingsOpen.value = false
+  nextTick(() => settingsTrigger.value?.focus())
+}
+
+function handleShellKeydown(event: KeyboardEvent) {
+  if (event.key === 'Escape' && settingsOpen.value) {
+    event.preventDefault()
+    closeSettings()
+  }
+}
+
 function logout() {
   sessionStorage.removeItem(authStorageKey)
   isAuthed.value = false
@@ -91,10 +112,13 @@ function logout() {
 }
 
 onMounted(() => {
+  window.addEventListener('keydown', handleShellKeydown)
   if (!isAuthed.value && route.path !== '/') {
     void router.replace('/')
   }
 })
+
+onUnmounted(() => window.removeEventListener('keydown', handleShellKeydown))
 </script>
 
 <template>
@@ -125,17 +149,17 @@ onMounted(() => {
 
       <div class="portal-user-menu">
         <span v-if="studentId === 'demo' && isAuthed" class="portal-demo-label">预置演示数据</span>
-        <button class="portal-user-trigger" type="button" :aria-expanded="settingsOpen" aria-label="打开用户设置" @click="settingsOpen = !settingsOpen">
+        <button ref="settingsTrigger" class="portal-user-trigger" type="button" :aria-expanded="settingsOpen" aria-controls="portal-settings-panel" aria-label="打开用户设置" @click="toggleSettings">
           <UserRound :size="17" />
           <span>用户设置</span>
           <Settings :size="15" />
         </button>
-        <section v-if="settingsOpen" class="portal-settings-panel" aria-label="用户设置面板">
-          <header><strong>用户设置</strong><button type="button" aria-label="关闭用户设置" @click="settingsOpen = false"><X :size="17" /></button></header>
+        <section v-if="settingsOpen" id="portal-settings-panel" ref="settingsPanel" class="portal-settings-panel" aria-label="用户设置面板" tabindex="-1">
+          <header><strong>用户设置</strong><button type="button" aria-label="关闭用户设置" @click="closeSettings"><X :size="17" /></button></header>
           <label><span>学习者 ID</span><input v-model="studentId" autocomplete="off" /></label>
           <label><span>专业方向</span><input v-model="major" placeholder="例如：软件工程" autocomplete="off" /></label>
           <label><span>学习目标</span><textarea v-model="goals" rows="3" placeholder="描述希望达成的能力或成果"></textarea></label>
-          <footer><RouterLink to="/profile" @click="settingsOpen = false">完善用户画像</RouterLink><button type="button" @click="logout">退出登录</button></footer>
+          <footer><RouterLink to="/profile" @click="closeSettings">完善用户画像</RouterLink><button type="button" @click="logout">退出登录</button></footer>
         </section>
       </div>
     </header>
@@ -181,7 +205,7 @@ onMounted(() => {
 
         <div class="login-tip">
           <span>现场演示可直接使用预置数据；测试登录使用任意 11 位手机号、密码 demo123</span>
-          <strong v-if="loginError">{{ loginError }}</strong>
+          <strong v-if="loginError" role="alert" aria-live="assertive">{{ loginError }}</strong>
         </div>
       </form>
     </section>

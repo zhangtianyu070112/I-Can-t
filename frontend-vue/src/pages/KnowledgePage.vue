@@ -170,10 +170,21 @@ const filtersCollapsed = ref(false)
 const isFullscreen = ref(false)
 const mobilePanel = ref<'none' | 'filters' | 'details'>('none')
 const notice = ref('')
+const graphZoom = ref(1)
+const graphInteractionStatus = ref('知识图谱已就绪。')
+const fullscreenTrigger = ref<HTMLButtonElement | null>(null)
+const knowledgeRoot = ref<HTMLElement | null>(null)
 const graphViewport = ref<HTMLElement | null>(null)
 const viewportWidth = ref(1080)
 let resizeObserver: ResizeObserver | null = null
 let noticeTimer: ReturnType<typeof window.setTimeout> | null = null
+let fullscreenFallback = false
+let previousBodyOverflow = ''
+let bodyOverflowLocked = false
+
+const GRAPH_ZOOM_MIN = 0.6
+const GRAPH_ZOOM_MAX = 1.8
+const GRAPH_ZOOM_STEP = 0.1
 
 const levelOptions: Array<{ value: 'all' | NodeKind; label: string }> = [
   { value: 'all', label: '全部' },
@@ -529,6 +540,17 @@ const graphLayout = computed(() => {
   return { width, height, nodes: positioned, edges }
 })
 
+const graphZoomStyle = computed(() => ({
+  width: `${graphLayout.value.width * graphZoom.value}px`,
+  minHeight: `${34 + graphLayout.value.height * graphZoom.value}px`,
+}))
+
+const graphZoomLayerStyle = computed(() => ({
+  width: `${graphLayout.value.width}px`,
+  height: `${graphLayout.value.height}px`,
+  transform: `scale(${graphZoom.value})`,
+}))
+
 function nodeGlyph(item: PositionedNode) {
   if (nodeKind(item.node) === 'course') return '课'
   if (nodeKind(item.node) === 'chapter') return String(item.index)
@@ -601,12 +623,111 @@ function selectNode(nodeId: string) {
   selectedNodeId.value = nodeId
   selectedSearchResult.value = null
   const item = graph.value.nodes.find((node) => node.id === nodeId)
-  if (item) showNotice(`已定位“${nodeName(item)}”，右侧已同步节点证据与学习动作。`)
+  if (item) {
+    graphInteractionStatus.value = `已选择${nodeName(item)}，右侧已同步节点证据与学习动作。`
+    showNotice(`已定位“${nodeName(item)}”，右侧已同步节点证据与学习动作。`)
+  }
 }
 
 function ensureSelection() {
   if (filteredNodes.value.some((item) => item.id === selectedNodeId.value)) return
   selectedNodeId.value = filteredNodes.value[0]?.id || ''
+}
+
+function clampGraphZoom(value: number) {
+  return Math.max(GRAPH_ZOOM_MIN, Math.min(GRAPH_ZOOM_MAX, Number(value.toFixed(2))))
+}
+
+function setGraphZoom(value: number, announce = true) {
+  const next = clampGraphZoom(value)
+  graphZoom.value = next
+  if (announce) {
+    const percent = Math.round(next * 100)
+    graphInteractionStatus.value = `知识图谱缩放至${percent}%。`
+    showNotice(`知识图谱已缩放至 ${percent}%。`)
+  }
+}
+
+function resetGraphZoom() {
+  setGraphZoom(1)
+}
+
+function fitGraphToViewport() {
+  const viewport = graphViewport.value
+  if (!viewport || !graphLayout.value.width) {
+    resetGraphZoom()
+    return
+  }
+  const widthRatio = viewport.clientWidth / graphLayout.value.width
+  const heightRatio = Math.max(0, (viewport.clientHeight - 44) / graphLayout.value.height)
+  setGraphZoom(Math.min(1, widthRatio, heightRatio))
+}
+
+function handleGraphWheel(event: WheelEvent) {
+  if (!event.ctrlKey && !event.metaKey) return
+  event.preventDefault()
+  setGraphZoom(graphZoom.value + (event.deltaY > 0 ? -GRAPH_ZOOM_STEP : GRAPH_ZOOM_STEP), false)
+  graphInteractionStatus.value = `知识图谱缩放至${Math.round(graphZoom.value * 100)}%。`
+}
+
+function handleGraphZoomInput(event: Event) {
+  setGraphZoom(Number((event.target as HTMLInputElement).value), false)
+  graphInteractionStatus.value = `知识图谱缩放至${Math.round(graphZoom.value * 100)}%。`
+}
+
+function graphNodeButton(nodeId: string) {
+  return Array.from(document.querySelectorAll<HTMLElement>('[data-knowledge-node]'))
+    .find((element) => element.dataset.knowledgeNode === nodeId) || null
+}
+
+function focusGraphNode(nodeId: string) {
+  nextTick(() => graphNodeButton(nodeId)?.focus())
+}
+
+function moveGraphSelection(nodeId: string, direction: 'left' | 'right' | 'up' | 'down') {
+  const current = graphLayout.value.nodes.find((item) => item.node.id === nodeId)
+  if (!current) return
+  const candidates = graphLayout.value.nodes.filter((item) => item.node.id !== nodeId).map((item) => {
+    const dx = item.x + item.width / 2 - (current.x + current.width / 2)
+    const dy = item.y + item.height / 2 - (current.y + current.height / 2)
+    const inDirection = direction === 'left' ? dx < -8 : direction === 'right' ? dx > 8 : direction === 'up' ? dy < -8 : dy > 8
+    return { item, dx, dy, inDirection }
+  }).filter((item) => item.inDirection)
+  if (!candidates.length) return
+  candidates.sort((a, b) => {
+    const primaryA = direction === 'left' || direction === 'right' ? Math.abs(a.dx) : Math.abs(a.dy)
+    const primaryB = direction === 'left' || direction === 'right' ? Math.abs(b.dx) : Math.abs(b.dy)
+    const secondaryA = direction === 'left' || direction === 'right' ? Math.abs(a.dy) : Math.abs(a.dx)
+    const secondaryB = direction === 'left' || direction === 'right' ? Math.abs(b.dy) : Math.abs(b.dx)
+    return (secondaryA * 4 + primaryA) - (secondaryB * 4 + primaryB)
+  })
+  selectNode(candidates[0].item.node.id)
+  focusGraphNode(candidates[0].item.node.id)
+}
+
+function handleGraphNodeKeydown(event: KeyboardEvent, nodeId: string) {
+  const direction = ({ ArrowLeft: 'left', ArrowRight: 'right', ArrowUp: 'up', ArrowDown: 'down' } as Record<string, 'left' | 'right' | 'up' | 'down'>)[event.key]
+  if (direction) {
+    event.preventDefault()
+    moveGraphSelection(nodeId, direction)
+    return
+  }
+  if (event.key === 'Home' || event.key === 'End') {
+    event.preventDefault()
+    const target = event.key === 'Home'
+      ? graphLayout.value.nodes.find((item) => nodeKind(item.node) === 'course') || graphLayout.value.nodes[0]
+      : [...graphLayout.value.nodes].reverse().find((item) => nodeKind(item.node) === 'resource') || graphLayout.value.nodes[graphLayout.value.nodes.length - 1]
+    if (target) {
+      selectNode(target.node.id)
+      focusGraphNode(target.node.id)
+    }
+    return
+  }
+  if (event.key === 'Escape') {
+    event.preventDefault()
+    if (isFullscreen.value) void exitFullscreen()
+    else (event.currentTarget as HTMLElement).blur()
+  }
 }
 
 async function loadWorkspace() {
@@ -778,10 +899,74 @@ function toggleFocusPath() {
   showNotice(focusPath.value ? '已高亮当前节点的课程归属与学习链路。' : '已恢复完整关系视图。')
 }
 
-function toggleFullscreen() {
-  isFullscreen.value = !isFullscreen.value
-  document.body.style.overflow = isFullscreen.value ? 'hidden' : ''
+function lockBodyForFullscreen() {
+  if (!isFullscreen.value) return
+  if (!bodyOverflowLocked) {
+    previousBodyOverflow = document.body.style.overflow
+    bodyOverflowLocked = true
+  }
+  document.body.style.overflow = 'hidden'
+}
+
+function restoreBodyAfterFullscreen() {
+  if (!bodyOverflowLocked) return
+  document.body.style.overflow = previousBodyOverflow
+  previousBodyOverflow = ''
+  bodyOverflowLocked = false
+}
+
+function syncFullscreenState() {
+  const nativeFullscreen = document.fullscreenElement === knowledgeRoot.value
+  if (nativeFullscreen) {
+    fullscreenFallback = false
+    isFullscreen.value = true
+    lockBodyForFullscreen()
+  } else if (!fullscreenFallback) {
+    const wasFullscreen = isFullscreen.value
+    isFullscreen.value = false
+    restoreBodyAfterFullscreen()
+    if (wasFullscreen) nextTick(() => fullscreenTrigger.value?.focus())
+  }
   nextTick(updateViewportWidth)
+}
+
+async function enterFullscreen() {
+  if (knowledgeRoot.value?.requestFullscreen && document.fullscreenEnabled) {
+    try {
+      await knowledgeRoot.value.requestFullscreen()
+      return
+    } catch {
+      // Some embedded browsers block the native API; use the visual fallback below.
+    }
+  }
+  fullscreenFallback = true
+  isFullscreen.value = true
+  lockBodyForFullscreen()
+  graphInteractionStatus.value = '已进入图谱全屏模式。'
+  nextTick(updateViewportWidth)
+}
+
+async function exitFullscreen() {
+  fullscreenFallback = false
+  if (document.fullscreenElement) {
+    try {
+      await document.exitFullscreen()
+    } catch {
+      // Keep the fallback cleanup below even if the browser refuses the request.
+    }
+  }
+  isFullscreen.value = false
+  restoreBodyAfterFullscreen()
+  graphInteractionStatus.value = '已退出图谱全屏模式。'
+  nextTick(() => {
+    updateViewportWidth()
+    fullscreenTrigger.value?.focus()
+  })
+}
+
+async function toggleFullscreen() {
+  if (isFullscreen.value) await exitFullscreen()
+  else await enterFullscreen()
 }
 
 function toggleMobilePanel(panel: 'filters' | 'details') {
@@ -863,8 +1048,42 @@ async function addToPath() {
   }
 }
 
+function isTypingTarget(target: EventTarget | null) {
+  const element = target as HTMLElement | null
+  return Boolean(element?.matches('input, textarea, select, [contenteditable="true"]'))
+}
+
 function handleKeydown(event: KeyboardEvent) {
-  if (event.key === 'Escape' && isFullscreen.value) toggleFullscreen()
+  if (isTypingTarget(event.target)) return
+  if (event.key === 'Escape') {
+    if (isFullscreen.value) {
+      event.preventDefault()
+      void exitFullscreen()
+    } else if (mobilePanel.value !== 'none') {
+      event.preventDefault()
+      mobilePanel.value = 'none'
+    }
+    return
+  }
+  if (event.key === '+' || event.key === '=') {
+    event.preventDefault()
+    setGraphZoom(graphZoom.value + GRAPH_ZOOM_STEP)
+    return
+  }
+  if (event.key === '-' || event.key === '_') {
+    event.preventDefault()
+    setGraphZoom(graphZoom.value - GRAPH_ZOOM_STEP)
+    return
+  }
+  if (event.key === '0') {
+    event.preventDefault()
+    resetGraphZoom()
+    return
+  }
+  if (event.key.toLowerCase() === 'f') {
+    event.preventDefault()
+    void toggleFullscreen()
+  }
 }
 
 watch(filteredNodes, () => nextTick(ensureSelection))
@@ -872,20 +1091,25 @@ watch(filteredNodes, () => nextTick(ensureSelection))
 onMounted(() => {
   void loadPage()
   window.addEventListener('keydown', handleKeydown)
+  document.addEventListener('fullscreenchange', syncFullscreenState)
   resizeObserver = new ResizeObserver(updateViewportWidth)
   if (graphViewport.value) resizeObserver.observe(graphViewport.value)
 })
 
 onUnmounted(() => {
   window.removeEventListener('keydown', handleKeydown)
+  document.removeEventListener('fullscreenchange', syncFullscreenState)
   resizeObserver?.disconnect()
   if (noticeTimer) window.clearTimeout(noticeTimer)
-  document.body.style.overflow = ''
+  if (document.fullscreenElement === knowledgeRoot.value) void document.exitFullscreen().catch(() => undefined)
+  fullscreenFallback = false
+  restoreBodyAfterFullscreen()
 })
 </script>
 
 <template>
   <main
+    ref="knowledgeRoot"
     class="knowledge-course-map"
     :class="{
       fullscreen: isFullscreen,
@@ -894,7 +1118,14 @@ onUnmounted(() => {
       'show-detail-panel': mobilePanel === 'details',
     }"
   >
-    <aside class="course-filter-panel" aria-label="课程图谱筛选">
+    <button
+      v-if="mobilePanel !== 'none'"
+      class="mobile-panel-backdrop"
+      type="button"
+      aria-label="关闭当前面板"
+      @click="mobilePanel = 'none'"
+    ></button>
+    <aside id="knowledge-filter-panel" class="course-filter-panel" aria-label="课程图谱筛选">
       <header class="panel-heading">
         <span><Filter :size="19" /></span>
         <div><small>KNOWLEDGE HUB</small><strong>知识中枢</strong></div>
@@ -988,12 +1219,29 @@ onUnmounted(() => {
           <p>{{ graph.course_summary || '按课程、章节、核心知识点和配套资源构建学习结构。' }}</p>
         </div>
         <div class="graph-tools">
-          <button class="mobile-panel-toggle" type="button" @click="toggleMobilePanel('filters')"><Filter :size="14" />筛选</button>
-          <button class="mobile-panel-toggle" type="button" @click="toggleMobilePanel('details')"><ClipboardList :size="14" />节点详情</button>
-          <button type="button" @click="toggleFullscreen">
+          <button class="mobile-panel-toggle" type="button" :aria-expanded="mobilePanel === 'filters'" aria-controls="knowledge-filter-panel" @click="toggleMobilePanel('filters')"><Filter :size="14" />筛选</button>
+          <button class="mobile-panel-toggle" type="button" :aria-expanded="mobilePanel === 'details'" aria-controls="knowledge-detail-panel" @click="toggleMobilePanel('details')"><ClipboardList :size="14" />节点详情</button>
+          <button ref="fullscreenTrigger" type="button" :aria-expanded="isFullscreen" :aria-label="isFullscreen ? '退出图谱全屏' : '进入图谱全屏'" :title="isFullscreen ? '退出图谱全屏 (F / Esc)' : '进入图谱全屏 (F)'" @click="toggleFullscreen">
             <Minimize2 v-if="isFullscreen" :size="14" />
             <Fullscreen v-else :size="14" />{{ isFullscreen ? '退出全屏' : '全屏' }}
           </button>
+          <div class="graph-zoom-tools" role="group" aria-label="图谱缩放控制">
+            <button type="button" aria-label="缩小图谱" title="缩小图谱 (-)" :disabled="graphZoom <= GRAPH_ZOOM_MIN" @click="setGraphZoom(graphZoom - GRAPH_ZOOM_STEP)">−</button>
+            <output class="graph-zoom-value" aria-live="polite">{{ Math.round(graphZoom * 100) }}%</output>
+            <button type="button" aria-label="放大图谱" title="放大图谱 (+)" :disabled="graphZoom >= GRAPH_ZOOM_MAX" @click="setGraphZoom(graphZoom + GRAPH_ZOOM_STEP)">＋</button>
+            <button type="button" aria-label="恢复图谱百分之百" title="恢复 100% (0)" :aria-pressed="graphZoom === 1" @click="resetGraphZoom">100%</button>
+            <button type="button" aria-label="适配图谱到窗口" title="适配窗口" @click="fitGraphToViewport">适配</button>
+            <input
+              class="graph-zoom-slider"
+              type="range"
+              min="0.6"
+              max="1.8"
+              step="0.1"
+              :value="graphZoom"
+              aria-label="图谱缩放比例"
+              @input="handleGraphZoomInput"
+            />
+          </div>
           <button class="desktop-filter-toggle" type="button" @click="filtersCollapsed = !filtersCollapsed">
             <PanelLeftOpen v-if="filtersCollapsed" :size="14" />
             <PanelLeftClose v-else :size="14" />{{ filtersCollapsed ? '展开筛选' : '收起筛选' }}
@@ -1001,6 +1249,7 @@ onUnmounted(() => {
           <button :class="{ active: focusPath }" type="button" :disabled="!selectedNode" @click="toggleFocusPath"><Route :size="14" />高亮路径</button>
         </div>
       </header>
+      <span class="knowledge-sr-only" aria-live="polite">{{ graphInteractionStatus }}</span>
 
       <div v-if="graphError" class="graph-alert" role="alert">
         <AlertCircle :size="17" /><span>{{ graphError }}</span><button type="button" @click="loadGraph({ initial: true })">重新加载</button>
@@ -1025,19 +1274,20 @@ onUnmounted(() => {
       </div>
 
       <div v-else class="graph-stage">
-        <div ref="graphViewport" class="graph-scroll">
-          <div class="graph-inner" :style="{ width: `${graphLayout.width}px` }">
+        <div ref="graphViewport" class="graph-scroll" @wheel="handleGraphWheel">
+          <div class="graph-inner" :style="graphZoomStyle">
             <div class="lane-heads">
               <span>课程入口</span><span>章节模块</span><span>核心知识点</span><span>资源 / 题型</span>
             </div>
-            <svg
-              class="layered-graph"
-              :width="graphLayout.width"
-              :height="graphLayout.height"
-              :viewBox="`0 0 ${graphLayout.width} ${graphLayout.height}`"
-              role="img"
-              :aria-label="`${graph.course}分层知识图谱，共${filteredNodes.length}个节点、${graphLayout.edges.length}条可见关系`"
-            >
+            <div class="graph-zoom-layer" :style="graphZoomLayerStyle">
+              <svg
+                class="layered-graph"
+                :width="graphLayout.width"
+                :height="graphLayout.height"
+                :viewBox="`0 0 ${graphLayout.width} ${graphLayout.height}`"
+                role="img"
+                :aria-label="`${graph.course}分层知识图谱，共${filteredNodes.length}个节点、${graphLayout.edges.length}条可见关系`"
+              >
               <defs>
                 <marker id="kg-arrow" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
                   <path d="M0,0 L7,3.5 L0,7 Z" fill="#8db5f2" />
@@ -1063,10 +1313,13 @@ onUnmounted(() => {
                 <button
                   xmlns="http://www.w3.org/1999/xhtml"
                   type="button"
+                  :data-knowledge-node="item.node.id"
                   :class="nodeClass(item)"
-                  :aria-current="item.node.id === selectedNodeId ? 'true' : undefined"
+                  :tabindex="item.node.id === selectedNodeId ? 0 : -1"
+                  :aria-selected="item.node.id === selectedNodeId ? 'true' : 'false'"
                   :aria-label="`${nodeName(item.node)}，${nodeTypeLabel(item.node)}`"
                   @click="selectNode(item.node.id)"
+                  @keydown="handleGraphNodeKeydown($event, item.node.id)"
                 >
                   <span
                     class="node-icon"
@@ -1087,7 +1340,8 @@ onUnmounted(() => {
                   </span>
                 </button>
               </foreignObject>
-            </svg>
+              </svg>
+            </div>
           </div>
         </div>
         <footer class="graph-legend">
@@ -1108,7 +1362,7 @@ onUnmounted(() => {
       </div>
     </section>
 
-    <aside class="course-detail-panel" aria-label="节点详情">
+    <aside id="knowledge-detail-panel" class="course-detail-panel" aria-label="节点详情">
       <header class="detail-head">
         <div><small><CircleDot :size="14" /> NODE DETAIL</small><strong>知识点详情</strong></div>
         <span>{{ selectedNode ? nodeTypeLabel(selectedNode) : '等待选择' }}</span>
