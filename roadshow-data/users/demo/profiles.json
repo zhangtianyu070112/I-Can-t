@@ -1,0 +1,26 @@
+[
+  {
+    "id": "deac9f0474564b0586890ff35b908e2e",
+    "student_id": "demo",
+    "knowledge_base_level": "beginner",
+    "cognitive_style": "visual",
+    "mistake_patterns": "confusing similar concepts and lacking practical application",
+    "modality_preference": "visual",
+    "pace_preference": "moderate, step-by-step",
+    "motivation_style": "achievement-oriented",
+    "evidence": {
+      "weak_points": [
+        "混淆用例图与需求访谈",
+        "基础概念理解不牢固（重复提问“请简单解释用例建模”）"
+      ],
+      "keywords": [
+        "用例图",
+        "需求访谈",
+        "图解",
+        "例题",
+        "实操案例"
+      ]
+    },
+    "created_at": "2026-06-14T06:07:36.915921+00:00"
+  }
+]

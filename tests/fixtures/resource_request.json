@@ -1,0 +1,12 @@
+{
+  "student_id": "demo_user_001",
+  "topic": "数据结构链表与递归专项提升",
+  "resource_type": "lecture_doc",
+  "requirement": {
+    "course": "数据结构",
+    "chapter": "链表与递归",
+    "weak_points": ["链表指针关系", "递归边界条件", "时间复杂度分析"],
+    "resource_types": ["lecture_doc", "mindmap", "question_bank", "reading", "practice_case", "video_script"],
+    "style": "图解 + 例题 + 代码实操"
+  }
+}

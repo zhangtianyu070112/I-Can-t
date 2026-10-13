@@ -1,0 +1,62 @@
+[
+  {
+    "id": "00ba26befd5844f2bda4a5ea05d6ba37",
+    "student_id": "demo_user_001",
+    "event_type": "profile_update",
+    "payload": {
+      "snapshot_id": "482e19ec76264fb1b1476cdcf0908f9f"
+    },
+    "created_at": "2026-10-13T01:13:20.188389+00:00"
+  },
+  {
+    "id": "18458400ce2c49c0b5dd595b507454fb",
+    "student_id": "demo_user_001",
+    "event_type": "path_plan",
+    "payload": {
+      "title": "围绕“掌握链表、栈、队列和递归，提高算法题正确率”的证据驱动学习路径",
+      "goals": "掌握链表、栈、队列和递归，提高算法题正确率",
+      "path": {
+        "title": "围绕“掌握链表、栈、队列和递归，提高算法题正确率”的证据驱动学习路径",
+        "steps": [
+          {
+            "order": 1,
+            "objective": "处理已识别薄弱点：链表",
+            "resources": [],
+            "assessment": "围绕“链表”完成一次可记录的练习、复述或实操证据",
+            "evidence_source": "profile_or_learning_history"
+          },
+          {
+            "order": 2,
+            "objective": "处理已识别薄弱点：递归",
+            "resources": [],
+            "assessment": "围绕“递归”完成一次可记录的练习、复述或实操证据",
+            "evidence_source": "profile_or_learning_history"
+          },
+          {
+            "order": 3,
+            "objective": "达成用户目标：掌握链表、栈、队列和递归，提高算法题正确率",
+            "resources": [],
+            "assessment": "提交与目标对应的学习产物，并进入评估页面生成证据报告",
+            "evidence_source": "user_goal"
+          }
+        ],
+        "strategy": [
+          "路径由 2 个薄弱信号、0 次作答和 0 份已有资源计算生成。"
+        ],
+        "dynamic_rules": [],
+        "rationale": "路径由 2 个薄弱信号、0 次作答和 0 份已有资源计算生成。",
+        "analysis_mode": "evidence_rules"
+      }
+    },
+    "created_at": "2026-10-13T01:13:20.288886+00:00"
+  },
+  {
+    "id": "b69daa1e17db489a8d8397be7d795831",
+    "student_id": "demo_user_001",
+    "event_type": "profile_update",
+    "payload": {
+      "snapshot_id": "3f41560fcca947e58980e7aa55273a88"
+    },
+    "created_at": "2026-10-13T01:13:22.093426+00:00"
+  }
+]

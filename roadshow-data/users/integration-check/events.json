@@ -1,0 +1,39 @@
+[
+  {
+    "id": "4c9025fa36f54b0fac270b973d797635",
+    "student_id": "integration-check",
+    "event_type": "path_plan",
+    "payload": {
+      "title": "围绕“掌握链表实现并解释递归调用栈”的证据驱动学习路径",
+      "goals": "掌握链表实现并解释递归调用栈",
+      "path": {
+        "title": "围绕“掌握链表实现并解释递归调用栈”的证据驱动学习路径",
+        "steps": [
+          {
+            "order": 1,
+            "objective": "达成用户目标：掌握链表实现并解释递归调用栈",
+            "resources": [],
+            "assessment": "提交与目标对应的学习产物，并进入评估页面生成证据报告",
+            "evidence_source": "user_goal"
+          }
+        ],
+        "strategy": [
+          "路径由 0 个薄弱信号、0 次作答和 0 份已有资源计算生成。"
+        ],
+        "dynamic_rules": [],
+        "rationale": "路径由 0 个薄弱信号、0 次作答和 0 份已有资源计算生成。",
+        "analysis_mode": "evidence_rules"
+      }
+    },
+    "created_at": "2026-10-13T01:20:50.944411+00:00"
+  },
+  {
+    "id": "3699b79017064675b03cc96324b876e8",
+    "student_id": "integration-check",
+    "event_type": "profile_update",
+    "payload": {
+      "snapshot_id": "8375a8fb9040428f9bee366d0c8a8bc8"
+    },
+    "created_at": "2026-10-13T01:20:52.978425+00:00"
+  }
+]

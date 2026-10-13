@@ -1,0 +1,151 @@
+[
+  {
+    "id": "58ea32ea1c7844ff89b15024466ca0e7",
+    "student_id": "demo",
+    "type": "video_recommendation",
+    "title": "教学视频推荐：软件需求分析与建模",
+    "tags": [
+      "软件需求分析与建模",
+      "视频推荐",
+      "队友成果集成"
+    ],
+    "content_uri": "files/demo/5f7933ae4342457dac05eb1baa4c3cb6.md",
+    "meta": {
+      "source": "teammate_video_generator",
+      "videos": [
+        {
+          "title": "软件需求分析与建模 入门讲解",
+          "description": "先建立直观概念和基本术语，适合课前预习。",
+          "difficulty": "入门",
+          "duration_hint": "10-20 分钟",
+          "platforms": [
+            {
+              "key": "bilibili",
+              "name": "B站",
+              "keyword": "软件需求分析与建模 入门 教学",
+              "url": "https://search.bilibili.com/all?keyword=%E8%BD%AF%E4%BB%B6%E9%9C%80%E6%B1%82%E5%88%86%E6%9E%90%E4%B8%8E%E5%BB%BA%E6%A8%A1%20%E5%85%A5%E9%97%A8%20%E6%95%99%E5%AD%A6"
+            },
+            {
+              "key": "tencent",
+              "name": "腾讯视频",
+              "keyword": "软件需求分析与建模 入门 教学",
+              "url": "https://v.qq.com/x/search/?q=%E8%BD%AF%E4%BB%B6%E9%9C%80%E6%B1%82%E5%88%86%E6%9E%90%E4%B8%8E%E5%BB%BA%E6%A8%A1%20%E5%85%A5%E9%97%A8%20%E6%95%99%E5%AD%A6"
+            },
+            {
+              "key": "iqiyi",
+              "name": "爱奇艺",
+              "keyword": "软件需求分析与建模 入门 教学",
+              "url": "https://so.iqiyi.com/so/q_%E8%BD%AF%E4%BB%B6%E9%9C%80%E6%B1%82%E5%88%86%E6%9E%90%E4%B8%8E%E5%BB%BA%E6%A8%A1%20%E5%85%A5%E9%97%A8%20%E6%95%99%E5%AD%A6"
+            },
+            {
+              "key": "youku",
+              "name": "优酷",
+              "keyword": "软件需求分析与建模 入门 教学",
+              "url": "https://so.youku.com/search_video/q_%E8%BD%AF%E4%BB%B6%E9%9C%80%E6%B1%82%E5%88%86%E6%9E%90%E4%B8%8E%E5%BB%BA%E6%A8%A1%20%E5%85%A5%E9%97%A8%20%E6%95%99%E5%AD%A6"
+            },
+            {
+              "key": "xigua",
+              "name": "西瓜视频",
+              "keyword": "软件需求分析与建模 入门 教学",
+              "url": "https://www.ixigua.com/search/%E8%BD%AF%E4%BB%B6%E9%9C%80%E6%B1%82%E5%88%86%E6%9E%90%E4%B8%8E%E5%BB%BA%E6%A8%A1%20%E5%85%A5%E9%97%A8%20%E6%95%99%E5%AD%A6?type=video"
+            }
+          ]
+        },
+        {
+          "title": "软件需求分析与建模 案例实战",
+          "description": "通过具体案例理解知识点如何落地。",
+          "difficulty": "进阶",
+          "duration_hint": "20-40 分钟",
+          "platforms": [
+            {
+              "key": "bilibili",
+              "name": "B站",
+              "keyword": "软件需求分析与建模 案例 实战",
+              "url": "https://search.bilibili.com/all?keyword=%E8%BD%AF%E4%BB%B6%E9%9C%80%E6%B1%82%E5%88%86%E6%9E%90%E4%B8%8E%E5%BB%BA%E6%A8%A1%20%E6%A1%88%E4%BE%8B%20%E5%AE%9E%E6%88%98"
+            },
+            {
+              "key": "tencent",
+              "name": "腾讯视频",
+              "keyword": "软件需求分析与建模 案例 实战",
+              "url": "https://v.qq.com/x/search/?q=%E8%BD%AF%E4%BB%B6%E9%9C%80%E6%B1%82%E5%88%86%E6%9E%90%E4%B8%8E%E5%BB%BA%E6%A8%A1%20%E6%A1%88%E4%BE%8B%20%E5%AE%9E%E6%88%98"
+            },
+            {
+              "key": "iqiyi",
+              "name": "爱奇艺",
+              "keyword": "软件需求分析与建模 案例 实战",
+              "url": "https://so.iqiyi.com/so/q_%E8%BD%AF%E4%BB%B6%E9%9C%80%E6%B1%82%E5%88%86%E6%9E%90%E4%B8%8E%E5%BB%BA%E6%A8%A1%20%E6%A1%88%E4%BE%8B%20%E5%AE%9E%E6%88%98"
+            },
+            {
+              "key": "youku",
+              "name": "优酷",
+              "keyword": "软件需求分析与建模 案例 实战",
+              "url": "https://so.youku.com/search_video/q_%E8%BD%AF%E4%BB%B6%E9%9C%80%E6%B1%82%E5%88%86%E6%9E%90%E4%B8%8E%E5%BB%BA%E6%A8%A1%20%E6%A1%88%E4%BE%8B%20%E5%AE%9E%E6%88%98"
+            },
+            {
+              "key": "xigua",
+              "name": "西瓜视频",
+              "keyword": "软件需求分析与建模 案例 实战",
+              "url": "https://www.ixigua.com/search/%E8%BD%AF%E4%BB%B6%E9%9C%80%E6%B1%82%E5%88%86%E6%9E%90%E4%B8%8E%E5%BB%BA%E6%A8%A1%20%E6%A1%88%E4%BE%8B%20%E5%AE%9E%E6%88%98?type=video"
+            }
+          ]
+        },
+        {
+          "title": "软件需求分析与建模 易错点解析",
+          "description": "聚焦常见误区和考试/项目中的错误判断。",
+          "difficulty": "进阶",
+          "duration_hint": "10-25 分钟",
+          "platforms": [
+            {
+              "key": "bilibili",
+              "name": "B站",
+              "keyword": "软件需求分析与建模 易错点 解析",
+              "url": "https://search.bilibili.com/all?keyword=%E8%BD%AF%E4%BB%B6%E9%9C%80%E6%B1%82%E5%88%86%E6%9E%90%E4%B8%8E%E5%BB%BA%E6%A8%A1%20%E6%98%93%E9%94%99%E7%82%B9%20%E8%A7%A3%E6%9E%90"
+            },
+            {
+              "key": "tencent",
+              "name": "腾讯视频",
+              "keyword": "软件需求分析与建模 易错点 解析",
+              "url": "https://v.qq.com/x/search/?q=%E8%BD%AF%E4%BB%B6%E9%9C%80%E6%B1%82%E5%88%86%E6%9E%90%E4%B8%8E%E5%BB%BA%E6%A8%A1%20%E6%98%93%E9%94%99%E7%82%B9%20%E8%A7%A3%E6%9E%90"
+            },
+            {
+              "key": "iqiyi",
+              "name": "爱奇艺",
+              "keyword": "软件需求分析与建模 易错点 解析",
+              "url": "https://so.iqiyi.com/so/q_%E8%BD%AF%E4%BB%B6%E9%9C%80%E6%B1%82%E5%88%86%E6%9E%90%E4%B8%8E%E5%BB%BA%E6%A8%A1%20%E6%98%93%E9%94%99%E7%82%B9%20%E8%A7%A3%E6%9E%90"
+            },
+            {
+              "key": "youku",
+              "name": "优酷",
+              "keyword": "软件需求分析与建模 易错点 解析",
+              "url": "https://so.youku.com/search_video/q_%E8%BD%AF%E4%BB%B6%E9%9C%80%E6%B1%82%E5%88%86%E6%9E%90%E4%B8%8E%E5%BB%BA%E6%A8%A1%20%E6%98%93%E9%94%99%E7%82%B9%20%E8%A7%A3%E6%9E%90"
+            },
+            {
+              "key": "xigua",
+              "name": "西瓜视频",
+              "keyword": "软件需求分析与建模 易错点 解析",
+              "url": "https://www.ixigua.com/search/%E8%BD%AF%E4%BB%B6%E9%9C%80%E6%B1%82%E5%88%86%E6%9E%90%E4%B8%8E%E5%BB%BA%E6%A8%A1%20%E6%98%93%E9%94%99%E7%82%B9%20%E8%A7%A3%E6%9E%90?type=video"
+            }
+          ]
+        }
+      ]
+    },
+    "created_at": "2026-06-14T06:10:19.328908+00:00"
+  },
+  {
+    "id": "b57f6480aa9c4c809a827d3c9be564c6",
+    "student_id": "demo",
+    "type": "voice_tutor_plan",
+    "title": "语音辅导方案：软件需求分析与建模",
+    "tags": [
+      "软件需求分析与建模",
+      "general",
+      "语音智能体"
+    ],
+    "content_uri": "files/demo/ef11ad2b41a247a28e56535d5c915a7d.md",
+    "meta": {
+      "source": "teammate_voice_agent",
+      "mode": "general"
+    },
+    "created_at": "2026-06-14T06:11:09.810495+00:00"
+  }
+]

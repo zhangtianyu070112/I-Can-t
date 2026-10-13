@@ -1,0 +1,37 @@
+[
+  {
+    "id": "7e495c8809db479fb843b332475e97ce",
+    "student_id": "button-contract-learner",
+    "knowledge_base_level": "基础薄弱，需要先补概念再练习",
+    "cognitive_style": "",
+    "mistake_patterns": "当前课程 掌握不足",
+    "modality_preference": "",
+    "pace_preference": "慢节奏",
+    "motivation_style": "",
+    "evidence": {
+      "weak_points": [
+        "当前课程 掌握不足"
+      ],
+      "evolution_records": [
+        {
+          "trigger": "manual_evaluation_review",
+          "context": {
+            "score": 1,
+            "topic": "当前课程",
+            "weak_points": [],
+            "action": "negative",
+            "evidence": {
+              "total": 2,
+              "exercise_attempts": 0,
+              "knowledge_nodes": 0,
+              "resource_items": 0,
+              "feedback_items": 0,
+              "learning_events": 2
+            }
+          }
+        }
+      ]
+    },
+    "created_at": "2026-10-13T01:18:55.520236+00:00"
+  }
+]

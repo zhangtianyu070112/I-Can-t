@@ -1,0 +1,13 @@
+{
+  "exercise_id": "demo_exercise_001",
+  "answers": [
+    {
+      "question_id": "q1",
+      "answer": "B"
+    },
+    {
+      "question_id": "q2",
+      "answer": "递归出口缺失"
+    }
+  ]
+}

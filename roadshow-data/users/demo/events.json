@@ -1,0 +1,331 @@
+[
+  {
+    "id": "6ca4ba2d28fb4f708d5640ec8a782421",
+    "student_id": "demo",
+    "event_type": "path_plan",
+    "payload": {
+      "title": "软件需求分析与建模入门路径"
+    },
+    "created_at": "2026-06-14T05:53:37.981547+00:00"
+  },
+  {
+    "id": "bd686418167147dfbbc5543d1bf422d1",
+    "student_id": "demo",
+    "event_type": "tutor",
+    "payload": {
+      "question": "请简单解释用例建模"
+    },
+    "created_at": "2026-06-14T05:53:45.142257+00:00"
+  },
+  {
+    "id": "1fc4a6099c7745d9bc20e0e4a9e9cac1",
+    "student_id": "demo",
+    "event_type": "clarify",
+    "payload": {
+      "weak_points": []
+    },
+    "created_at": "2026-06-14T05:56:00.587636+00:00"
+  },
+  {
+    "id": "088e142c96704c38a0aebb7a75ca8a8f",
+    "student_id": "demo",
+    "event_type": "tutor",
+    "payload": {
+      "question": "请简单解释用例建模"
+    },
+    "created_at": "2026-06-14T05:56:17.820786+00:00"
+  },
+  {
+    "id": "12a55e4661ee4846967084fe603fc8ed",
+    "student_id": "demo",
+    "event_type": "profile_update",
+    "payload": {
+      "snapshot_id": "deac9f0474564b0586890ff35b908e2e"
+    },
+    "created_at": "2026-06-14T06:07:36.926528+00:00"
+  },
+  {
+    "id": "859fac26d72a4fd7ae7e24f72aec9794",
+    "student_id": "demo",
+    "event_type": "knowledge_search",
+    "payload": {
+      "query": "软件需求分析 用例建模 非功能需求",
+      "result_count": 6,
+      "created_at": "2026-06-14T06:10:07.270848+00:00"
+    },
+    "created_at": "2026-06-14T06:10:07.273779+00:00"
+  },
+  {
+    "id": "0407bb20b31d4f52ba1ad5ecd4b15eca",
+    "student_id": "demo",
+    "event_type": "multimodal_video",
+    "payload": {
+      "topic": "软件需求分析与建模",
+      "saved": true
+    },
+    "created_at": "2026-06-14T06:10:19.333031+00:00"
+  },
+  {
+    "id": "9e8cd4d5f58340568af0a6e93dba56d4",
+    "student_id": "demo",
+    "event_type": "multimodal_voice",
+    "payload": {
+      "topic": "软件需求分析与建模",
+      "mode": "general",
+      "saved": true
+    },
+    "created_at": "2026-06-14T06:11:09.811237+00:00"
+  },
+  {
+    "id": "7fa558df4a7944fbb97c7b2b1875a5d6",
+    "student_id": "demo",
+    "event_type": "path_plan",
+    "payload": {
+      "title": "从基础到应用：用例建模与需求分析精讲"
+    },
+    "created_at": "2026-06-14T06:11:15.328197+00:00"
+  },
+  {
+    "id": "ae3755babcc14359aa604a87388c9406",
+    "student_id": "demo",
+    "event_type": "knowledge_search",
+    "payload": {
+      "query": "软件需求分析 用例建模 非功能需求",
+      "result_count": 6,
+      "created_at": "2026-06-14T06:12:20.604894+00:00"
+    },
+    "created_at": "2026-06-14T06:12:20.610245+00:00"
+  },
+  {
+    "id": "4fa4f257b898482fabe9939bf8793ecc",
+    "student_id": "demo",
+    "event_type": "clarify",
+    "payload": {
+      "weak_points": [
+        "不懂主定理",
+        "渐进符号"
+      ]
+    },
+    "created_at": "2026-06-14T06:12:22.889374+00:00"
+  },
+  {
+    "id": "9c597815ebf1424295edcc4b6e93efed",
+    "student_id": "demo",
+    "event_type": "knowledge_search",
+    "payload": {
+      "query": "软件需求分析 用例建模 非功能需求",
+      "result_count": 6,
+      "created_at": "2026-06-14T06:26:57.625155+00:00"
+    },
+    "created_at": "2026-06-14T06:26:57.627929+00:00"
+  },
+  {
+    "id": "753ffced73ed4e348c50dd02c9df1f25",
+    "student_id": "demo",
+    "event_type": "exercise_answer",
+    "payload": {
+      "question_id": "demo:exercise:3",
+      "correct": false,
+      "tags": [
+        "练习诊断",
+        "资源推送"
+      ],
+      "source": "系统内置演示题库"
+    },
+    "created_at": "2026-06-14T06:57:22.401301+00:00"
+  },
+  {
+    "id": "27a2f4f1dd5e4990b1010189bb4be744",
+    "student_id": "demo",
+    "event_type": "exercise_answer",
+    "payload": {
+      "question_id": "demo:exercise:3",
+      "correct": false,
+      "tags": [
+        "练习诊断",
+        "资源推送"
+      ],
+      "source": "系统内置演示题库"
+    },
+    "created_at": "2026-06-14T06:57:24.050170+00:00"
+  },
+  {
+    "id": "3446085541ef4b9e94572d1b9200be28",
+    "student_id": "demo",
+    "event_type": "knowledge_search",
+    "payload": {
+      "query": "软件需求分析 用例建模 非功能需求",
+      "result_count": 6,
+      "created_at": "2026-06-14T06:57:34.132505+00:00"
+    },
+    "created_at": "2026-06-14T06:57:34.132867+00:00"
+  },
+  {
+    "id": "43effdd632684915b02e5ceb14fd189e",
+    "student_id": "demo",
+    "event_type": "knowledge_search",
+    "payload": {
+      "query": "软件需求分析 用例建模 非功能需求",
+      "result_count": 6,
+      "created_at": "2026-06-14T07:04:20.973117+00:00"
+    },
+    "created_at": "2026-06-14T07:04:20.977615+00:00"
+  },
+  {
+    "id": "de3ae915b42542c3a7a9e6bdb3190aa6",
+    "student_id": "demo",
+    "event_type": "knowledge_search",
+    "payload": {
+      "query": "软件需求分析 用例建模 非功能需求",
+      "result_count": 6,
+      "created_at": "2026-06-14T10:07:25.751961+00:00"
+    },
+    "created_at": "2026-06-14T10:07:25.754600+00:00"
+  },
+  {
+    "id": "ac18b7552fd94f159444b7d75c1dfae1",
+    "student_id": "demo",
+    "event_type": "knowledge_search",
+    "payload": {
+      "query": "软件需求分析 用例建模 非功能需求",
+      "result_count": 6,
+      "created_at": "2026-06-14T10:08:06.334978+00:00"
+    },
+    "created_at": "2026-06-14T10:08:06.337616+00:00"
+  },
+  {
+    "id": "539f5ee3f46041999e2ffc13c0abef16",
+    "student_id": "demo",
+    "event_type": "knowledge_search",
+    "payload": {
+      "query": "软件需求分析 用例建模 非功能需求",
+      "result_count": 6,
+      "created_at": "2026-06-14T10:52:50.467232+00:00"
+    },
+    "created_at": "2026-06-14T10:52:50.469593+00:00"
+  },
+  {
+    "id": "e88b907570e140de92e41abe925b51e2",
+    "student_id": "demo",
+    "event_type": "evaluate",
+    "payload": {
+      "report": {
+        "analysis_mode": "evidence_rules",
+        "summary": "本次评估读取 21 条本地行为证据、2 次练习和 0 个知识节点；练习正确率 0.0%，综合得分 15.2。",
+        "findings": [
+          "练习正确率为 0.0%",
+          "资源正反馈 0 次、负反馈 0 次",
+          "最近累计提问 2 次"
+        ],
+        "weak_points": [
+          "练习诊断",
+          "资源推送",
+          "混淆用例图与需求访谈",
+          "基础概念理解不牢固（重复提问“请简单解释用例建模”）"
+        ],
+        "recommendations": [
+          "优先围绕“练习诊断”完成一次讲解、练习、复盘闭环",
+          "降低下一阶段题目跨度，先完成基础辨析题再进入综合应用"
+        ],
+        "profile_snapshot_id": "deac9f0474564b0586890ff35b908e2e",
+        "knowledge_mastery_summary": {
+          "average_mastery": 0,
+          "completed_nodes": 0,
+          "in_progress_nodes": 0,
+          "total_nodes": 0,
+          "assessed_nodes": 0,
+          "progress_percent": 0
+        },
+        "exercise_summary": {
+          "total": 2,
+          "correct": 0,
+          "wrong": 2,
+          "accuracy": 0.0,
+          "weak_tags": [
+            {
+              "tag": "练习诊断",
+              "total": 2,
+              "wrong": 2,
+              "wrong_rate": 100.0
+            },
+            {
+              "tag": "资源推送",
+              "total": 2,
+              "wrong": 2,
+              "wrong_rate": 100.0
+            }
+          ],
+          "corrections": [
+            {
+              "id": "88045c8070084aea929aac4f5b7ed2b8",
+              "question_id": "demo:exercise:3",
+              "source": "系统内置演示题库",
+              "type": "single_choice",
+              "stem": "练习诊断结果进入学习评估模块后，最直接支持的能力是（  ）。",
+              "answer": "B",
+              "correct_answer": "A",
+              "correct": false,
+              "analysis": "错题标签、正确率和答题记录可以作为学习评估、资源推荐和路径调整的数据依据。",
+              "tags": [
+                "练习诊断",
+                "资源推送"
+              ]
+            },
+            {
+              "id": "843bdb2b26294a0b9d4ad6820c9d6286",
+              "question_id": "demo:exercise:3",
+              "source": "系统内置演示题库",
+              "type": "single_choice",
+              "stem": "练习诊断结果进入学习评估模块后，最直接支持的能力是（  ）。",
+              "answer": "C",
+              "correct_answer": "A",
+              "correct": false,
+              "analysis": "错题标签、正确率和答题记录可以作为学习评估、资源推荐和路径调整的数据依据。",
+              "tags": [
+                "练习诊断",
+                "资源推送"
+              ]
+            }
+          ]
+        },
+        "dimensions": {
+          "knowledge_mastery": 0.0,
+          "stability": 0.0,
+          "transfer": 76.0,
+          "resource_efficiency": 0.0
+        },
+        "overall_score": 15.2,
+        "mastery_level": "基础补强",
+        "risk_level": "高风险",
+        "evidence_summary": {
+          "total_resources_used": 0,
+          "liked_resources": 0,
+          "disliked_resources": 0,
+          "tutor_questions_asked": 2,
+          "exercise_total": 2,
+          "exercise_accuracy": 0.0,
+          "exercise_weak_tags": [
+            {
+              "tag": "练习诊断",
+              "total": 2,
+              "wrong": 2,
+              "wrong_rate": 100.0
+            },
+            {
+              "tag": "资源推送",
+              "total": 2,
+              "wrong": 2,
+              "wrong_rate": 100.0
+            }
+          ],
+          "recent_tutor_topics": [
+            "请简单解释用例建模",
+            "请简单解释用例建模"
+          ]
+        },
+        "generated_at": "2026-10-13T09:20:54"
+      }
+    },
+    "created_at": "2026-10-13T01:20:54.890549+00:00"
+  }
+]

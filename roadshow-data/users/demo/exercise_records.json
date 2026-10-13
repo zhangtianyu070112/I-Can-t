@@ -1,0 +1,32 @@
+[
+  {
+    "id": "88045c8070084aea929aac4f5b7ed2b8",
+    "question_id": "demo:exercise:3",
+    "source": "系统内置演示题库",
+    "type": "single_choice",
+    "stem": "练习诊断结果进入学习评估模块后，最直接支持的能力是（  ）。",
+    "answer": "B",
+    "correct_answer": "A",
+    "correct": false,
+    "analysis": "错题标签、正确率和答题记录可以作为学习评估、资源推荐和路径调整的数据依据。",
+    "tags": [
+      "练习诊断",
+      "资源推送"
+    ]
+  },
+  {
+    "id": "843bdb2b26294a0b9d4ad6820c9d6286",
+    "question_id": "demo:exercise:3",
+    "source": "系统内置演示题库",
+    "type": "single_choice",
+    "stem": "练习诊断结果进入学习评估模块后，最直接支持的能力是（  ）。",
+    "answer": "C",
+    "correct_answer": "A",
+    "correct": false,
+    "analysis": "错题标签、正确率和答题记录可以作为学习评估、资源推荐和路径调整的数据依据。",
+    "tags": [
+      "练习诊断",
+      "资源推送"
+    ]
+  }
+]

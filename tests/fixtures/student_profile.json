@@ -1,0 +1,15 @@
+{
+  "student_id": "demo_user_001",
+  "major": "软件工程",
+  "course": "数据结构",
+  "learning_goal": "掌握链表、栈、队列和递归，提高算法题正确率",
+  "knowledge_level": "基础偏弱",
+  "weaknesses": ["递归", "链表指针关系", "时间复杂度分析"],
+  "learning_style": "图解 + 例题 + 代码实操",
+  "resource_preference": ["课程讲解文档", "练习题", "代码案例", "思维导图"],
+  "study_progress": {
+    "linked_list": 40,
+    "stack_queue": 30,
+    "recursion": 20
+  }
+}

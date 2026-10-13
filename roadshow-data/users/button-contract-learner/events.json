@@ -1,0 +1,136 @@
+[
+  {
+    "id": "3f22b47ae9fc401e8f2632ab0478d256",
+    "student_id": "button-contract-learner",
+    "event_type": "evaluate",
+    "payload": {
+      "report": {
+        "analysis_mode": "evidence_rules",
+        "summary": "本次评估读取 0 条本地行为证据、0 次练习和 0 个知识节点；练习正确率 0%，综合得分 0.0。",
+        "findings": [
+          "练习正确率为 0%",
+          "资源正反馈 0 次、负反馈 0 次",
+          "最近累计提问 0 次"
+        ],
+        "weak_points": [],
+        "recommendations": [
+          "降低下一阶段题目跨度，先完成基础辨析题再进入综合应用"
+        ],
+        "profile_snapshot_id": null,
+        "knowledge_mastery_summary": {
+          "average_mastery": 0,
+          "completed_nodes": 0,
+          "in_progress_nodes": 0,
+          "total_nodes": 0,
+          "assessed_nodes": 0,
+          "progress_percent": 0
+        },
+        "exercise_summary": {
+          "total": 0,
+          "correct": 0,
+          "wrong": 0,
+          "accuracy": 0,
+          "weak_tags": [],
+          "corrections": []
+        },
+        "dimensions": {
+          "knowledge_mastery": 0.0,
+          "stability": 0.0,
+          "transfer": 0.0,
+          "resource_efficiency": 0.0
+        },
+        "overall_score": 0.0,
+        "mastery_level": "基础补强",
+        "risk_level": "高风险",
+        "evidence_summary": {
+          "total_resources_used": 0,
+          "liked_resources": 0,
+          "disliked_resources": 0,
+          "tutor_questions_asked": 0,
+          "exercise_total": 0,
+          "exercise_accuracy": 0,
+          "exercise_weak_tags": [],
+          "recent_tutor_topics": []
+        },
+        "generated_at": "2026-10-13T09:15:49"
+      }
+    },
+    "created_at": "2026-10-13T01:15:49.088885+00:00"
+  },
+  {
+    "id": "6532ceaebeeb4164829ddf3b9bbb87b2",
+    "student_id": "button-contract-learner",
+    "event_type": "evaluate",
+    "payload": {
+      "report": {
+        "analysis_mode": "evidence_rules",
+        "summary": "本次评估读取 1 条本地行为证据、0 次练习和 0 个知识节点；练习正确率 0%，综合得分 0.8。",
+        "findings": [
+          "练习正确率为 0%",
+          "资源正反馈 0 次、负反馈 0 次",
+          "最近累计提问 0 次"
+        ],
+        "weak_points": [],
+        "recommendations": [
+          "降低下一阶段题目跨度，先完成基础辨析题再进入综合应用"
+        ],
+        "profile_snapshot_id": null,
+        "knowledge_mastery_summary": {
+          "average_mastery": 0,
+          "completed_nodes": 0,
+          "in_progress_nodes": 0,
+          "total_nodes": 0,
+          "assessed_nodes": 0,
+          "progress_percent": 0
+        },
+        "exercise_summary": {
+          "total": 0,
+          "correct": 0,
+          "wrong": 0,
+          "accuracy": 0,
+          "weak_tags": [],
+          "corrections": []
+        },
+        "dimensions": {
+          "knowledge_mastery": 0.0,
+          "stability": 0.0,
+          "transfer": 4.0,
+          "resource_efficiency": 0.0
+        },
+        "overall_score": 0.8,
+        "mastery_level": "基础补强",
+        "risk_level": "高风险",
+        "evidence_summary": {
+          "total_resources_used": 0,
+          "liked_resources": 0,
+          "disliked_resources": 0,
+          "tutor_questions_asked": 0,
+          "exercise_total": 0,
+          "exercise_accuracy": 0,
+          "exercise_weak_tags": [],
+          "recent_tutor_topics": []
+        },
+        "generated_at": "2026-10-13T09:18:47"
+      }
+    },
+    "created_at": "2026-10-13T01:18:47.094240+00:00"
+  },
+  {
+    "id": "6b04712057634827b538146a8dff5e0a",
+    "student_id": "button-contract-learner",
+    "event_type": "evolution_triggered",
+    "payload": {
+      "trigger": "manual_evaluation_review",
+      "reason": "最新测评/掌握度分数为 1，低于 60 分阈值。",
+      "recommended_action": "降低下一阶段学习难度，优先推送讲解文档、思维导图和基础题。",
+      "profile_updates": {
+        "knowledge_base_level": "基础薄弱，需要先补概念再练习",
+        "mistake_patterns": "当前课程 掌握不足",
+        "pace_preference": "慢节奏"
+      },
+      "snapshot_id": "7e495c8809db479fb843b332475e97ce",
+      "mode": "heuristic"
+    },
+    "created_at": "2026-10-13T01:18:55.522613+00:00"
+  }
+]

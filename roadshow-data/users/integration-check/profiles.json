@@ -1,0 +1,17 @@
+[
+  {
+    "id": "8375a8fb9040428f9bee366d0c8a8bc8",
+    "student_id": "integration-check",
+    "knowledge_base_level": "待评估",
+    "cognitive_style": "结构化步骤型",
+    "mistake_patterns": "待采集",
+    "modality_preference": "图解优先",
+    "pace_preference": "中等节奏",
+    "motivation_style": "目标驱动",
+    "evidence": {
+      "weak_points": [],
+      "keywords": []
+    },
+    "created_at": "2026-10-13T01:20:52.976147+00:00"
+  }
+]

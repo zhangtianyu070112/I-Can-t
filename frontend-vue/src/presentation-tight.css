@@ -1,0 +1,375 @@
+/* Final recording layout pass: compact, task-first, minimal explanatory copy. */
+
+.portal-header {
+  min-height: 58px !important;
+  grid-template-columns: 210px minmax(0, 1fr) auto !important;
+  padding: 6px 22px !important;
+}
+
+.portal-brand-mark {
+  width: 36px !important;
+  height: 36px !important;
+  border-radius: 10px !important;
+}
+
+.portal-brand-copy strong {
+  font-size: 18px !important;
+}
+
+.portal-brand-copy small {
+  display: none;
+}
+
+.portal-nav {
+  gap: 2px !important;
+}
+
+.portal-nav-link {
+  min-height: 34px !important;
+  border-radius: 9px !important;
+  padding: 0 8px !important;
+  font-size: 12px !important;
+}
+
+.portal-status {
+  min-height: 32px !important;
+  padding: 0 10px !important;
+}
+
+.portal-main {
+  padding: 0 !important;
+}
+
+.portal-main:not(.portal-main-home) {
+  min-height: auto !important;
+}
+
+.portal-main:not(.portal-main-home) .portal-page-head {
+  min-height: 52px !important;
+  display: flex !important;
+  align-items: center !important;
+  margin: 0 !important;
+  padding: 8px 24px !important;
+  border: 0 !important;
+  border-bottom: 1px solid rgba(16, 32, 51, 0.08) !important;
+  background: #ffffff !important;
+  box-shadow: none !important;
+}
+
+.portal-main:not(.portal-main-home) .portal-page-head h1 {
+  margin: 0 !important;
+  font-family: "Microsoft YaHei", "PingFang SC", sans-serif !important;
+  font-size: 25px !important;
+  font-weight: 950 !important;
+  line-height: 1.1 !important;
+}
+
+.portal-main:not(.portal-main-home) .portal-page-head p,
+.portal-main:not(.portal-main-home) .portal-page-head .eyebrow,
+.portal-footer {
+  display: none !important;
+}
+
+.studio-page {
+  min-height: auto !important;
+  gap: 10px !important;
+  padding: 10px 0 12px !important;
+}
+
+.studio-grid,
+.studio-grid-balanced,
+.tutor-workbench,
+.exercise-dashboard,
+.knowledge-overview,
+.knowledge-grid {
+  gap: 10px !important;
+}
+
+.studio-page > .studio-grid:first-child,
+.portal-main:not(.portal-main-home) .studio-page > .studio-grid:first-child,
+.portal-main:not(.portal-main-home) .exercise-dashboard,
+.portal-main:not(.portal-main-home) .tutor-workbench,
+.portal-main:not(.portal-main-home) > .grid,
+.portal-main:not(.portal-main-home) > .knowledge-hub,
+.knowledge-workbench,
+.evaluation-workbench {
+  min-height: auto !important;
+}
+
+.studio-page > .studio-grid:first-child > .studio-panel,
+.studio-page > .studio-grid:first-child > aside,
+.studio-page > .studio-grid:first-child > section,
+.tutor-workbench > .studio-panel,
+.exercise-dashboard > .exercise-card,
+.exercise-dashboard > .exercise-side {
+  height: auto !important;
+}
+
+.studio-panel-header {
+  min-height: 48px !important;
+  padding: 10px 14px !important;
+}
+
+.studio-panel-header p,
+.exercise-card > p,
+.hub-panel > p,
+.board-heading small,
+.rail-step small,
+.dock-metrics small,
+.profile-dimension p {
+  display: none !important;
+}
+
+.studio-panel-body {
+  padding: 10px 14px 12px !important;
+}
+
+.studio-title {
+  font-size: 15px !important;
+}
+
+.studio-textarea {
+  min-height: 86px !important;
+}
+
+.studio-empty,
+.exercise-empty,
+.exercise-compact-empty {
+  min-height: 64px !important;
+  padding: 10px !important;
+}
+
+.answer-stage {
+  min-height: auto !important;
+}
+
+.answer-stage .studio-empty {
+  min-height: 72px !important;
+}
+
+.answer-block {
+  padding: 12px !important;
+}
+
+.json-view {
+  max-height: 220px !important;
+}
+
+.report-row,
+.resource-item {
+  padding: 10px 12px !important;
+}
+
+.exercise-dashboard {
+  padding: 10px 0 0 !important;
+  grid-template-columns: minmax(0, 1.55fr) minmax(300px, 0.65fr) !important;
+  align-items: start !important;
+}
+
+.exercise-main-card,
+.exercise-stats-card,
+.exercise-nav-card {
+  padding: 14px !important;
+}
+
+.exercise-question {
+  padding: 12px !important;
+}
+
+.exercise-options label {
+  min-height: 42px !important;
+}
+
+.knowledge-workbench {
+  padding: 10px 12px 12px !important;
+}
+
+.knowledge-filter-rail,
+.knowledge-detail-panel,
+.knowledge-graph-panel {
+  min-height: auto !important;
+}
+
+.graph-stage,
+.graph-canvas {
+  min-height: 440px !important;
+}
+
+.evaluation-workbench {
+  padding: 10px 12px 14px !important;
+}
+
+.evaluation-hero {
+  min-height: auto !important;
+  padding: 14px 16px !important;
+}
+
+.evaluation-main,
+.evolution-grid {
+  gap: 10px !important;
+}
+
+.integrated-home {
+  min-height: auto !important;
+}
+
+.integrated-hero {
+  min-height: 236px !important;
+  gap: 16px !important;
+  padding: 16px 24px 14px !important;
+}
+
+.integrated-copy h1 {
+  margin: 8px 0 !important;
+  font-size: clamp(32px, 4vw, 54px) !important;
+}
+
+.integrated-copy p {
+  max-width: 720px !important;
+  font-size: 14px !important;
+  line-height: 1.55 !important;
+}
+
+.integrated-actions {
+  margin-top: 16px !important;
+}
+
+.primary-cta,
+.secondary-cta {
+  min-height: 40px !important;
+  border-radius: 10px !important;
+  padding: 0 14px !important;
+}
+
+.mission-console {
+  min-height: 230px !important;
+}
+
+.console-head,
+.console-foot {
+  padding: 10px 12px !important;
+}
+
+.loop-node {
+  min-height: 72px !important;
+  padding: 10px !important;
+}
+
+.operator-bar {
+  padding: 10px 24px !important;
+}
+
+.operator-bar p {
+  display: none !important;
+}
+
+.operator-bar input {
+  height: 36px !important;
+}
+
+.integrated-layout {
+  min-height: auto !important;
+  grid-template-columns: 260px minmax(0, 1fr) 320px !important;
+}
+
+.workflow-rail,
+.insight-dock {
+  background: rgba(255, 255, 255, 0.92) !important;
+}
+
+.rail-title {
+  min-height: 44px !important;
+  padding: 0 14px !important;
+}
+
+.rail-step {
+  min-height: 58px !important;
+  grid-template-columns: 36px minmax(0, 1fr) !important;
+  padding: 9px 12px !important;
+}
+
+.rail-step b {
+  width: 30px !important;
+  height: 30px !important;
+}
+
+.rail-step em {
+  grid-column: 2 !important;
+  padding: 2px 7px !important;
+}
+
+.demo-stage,
+.insight-dock {
+  padding: 10px !important;
+}
+
+.demo-stage {
+  grid-template-rows: auto !important;
+}
+
+.lane-board {
+  height: 100%;
+}
+
+.resource-lane {
+  min-height: 64px !important;
+  padding: 10px 14px !important;
+}
+
+.fusion-stack,
+.home-score-grid,
+.workshop-kpi-grid,
+.pipeline-blueprint,
+.blueprint-grid,
+.preview-blueprint,
+.path-rule-grid {
+  gap: 10px !important;
+}
+
+.home-score-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+}
+
+.home-score-card,
+.workshop-kpi-card,
+.pipeline-card,
+.blueprint-card,
+.preview-card,
+.path-rule-card {
+  min-height: 84px !important;
+  padding: 12px !important;
+}
+
+.path-hint-strip {
+  margin-bottom: 10px !important;
+  padding: 10px 12px !important;
+}
+
+.dock-card {
+  padding: 11px !important;
+  gap: 7px !important;
+}
+
+.dock-metrics strong {
+  font-size: 24px !important;
+}
+
+@media (max-width: 1320px) {
+  .integrated-layout,
+  .integrated-hero,
+  .operator-bar,
+  .exercise-dashboard {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (max-width: 720px) {
+  .portal-header {
+    grid-template-columns: 1fr !important;
+    padding: 8px 12px !important;
+  }
+
+  .portal-main:not(.portal-main-home) .portal-page-head {
+    padding: 10px 14px !important;
+  }
+}

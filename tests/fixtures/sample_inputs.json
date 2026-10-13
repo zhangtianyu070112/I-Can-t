@@ -1,0 +1,11 @@
+{
+  "profile_input": "我是软件工程专业学生，正在学数据结构，链表和递归比较弱，希望系统帮我生成学习路径。",
+  "tutor_question": "请给我讲一下单链表插入操作，最好有图解和代码。",
+  "resource_request": "根据我的薄弱点生成 5 道链表练习题。",
+  "diagnose_request": "我做错了递归边界条件相关题目，请帮我诊断原因。",
+  "recommendation_request": "给我推荐下一步学习资源。",
+  "mindmap_request": "生成一个链表知识点思维导图。",
+  "multimodal_request": "请生成一个链表动画讲解脚本。",
+  "export_request": "我想导出本次学习资源。",
+  "out_of_scope_question": "量子场论中的重整化怎么证明？"
+}

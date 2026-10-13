@@ -1,0 +1,175 @@
+/* Global density pass for competition demo pages. */
+.portal-main:not(.portal-main-home) {
+  min-height: calc(100vh - 76px);
+  padding: 0;
+}
+
+.portal-main:not(.portal-main-home) .portal-page-head {
+  min-height: 118px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  margin: 0;
+  padding: 18px 38px;
+  border-left: 0;
+  border-right: 0;
+  box-shadow: 0 10px 22px rgba(34, 86, 150, 0.06);
+}
+
+.portal-main:not(.portal-main-home) .portal-page-head h1 {
+  margin: 6px 0 4px;
+  font-size: clamp(30px, 3vw, 44px);
+}
+
+.portal-main:not(.portal-main-home) .portal-page-head p {
+  max-width: 900px;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.portal-main:not(.portal-main-home) .eyebrow {
+  font-size: 11px;
+}
+
+.portal-main:not(.portal-main-home) > .grid,
+.portal-main:not(.portal-main-home) > .knowledge-hub {
+  min-height: calc(100vh - 194px);
+  padding: 14px 0 0;
+}
+
+.portal-main:not(.portal-main-home) > .exercise-dashboard {
+  min-height: auto;
+  padding: 14px 0 0;
+}
+
+.portal-main:not(.portal-main-home) > .grid {
+  gap: 14px !important;
+  align-items: stretch;
+}
+
+.portal-main:not(.portal-main-home) > .grid > section,
+.portal-main:not(.portal-main-home) > .grid > aside,
+.portal-main:not(.portal-main-home) > .grid > aside > section,
+.portal-main:not(.portal-main-home) .exercise-card,
+.portal-main:not(.portal-main-home) .hub-panel,
+.portal-main:not(.portal-main-home) .pipeline-card {
+  border-radius: 18px !important;
+}
+
+.portal-main:not(.portal-main-home) > .grid > section,
+.portal-main:not(.portal-main-home) > .grid > aside > section {
+  padding: 18px !important;
+}
+
+.portal-main:not(.portal-main-home) > .grid > aside {
+  display: grid;
+  gap: 14px !important;
+  align-content: start;
+}
+
+.portal-main:not(.portal-main-home) > .grid > section[class~="space-y-6"],
+.portal-main:not(.portal-main-home) > .grid > aside[class~="space-y-6"] {
+  display: grid !important;
+  grid-auto-rows: minmax(0, 1fr);
+  gap: 14px !important;
+  align-content: stretch;
+}
+
+.portal-main:not(.portal-main-home) > .grid > section[class~="space-y-6"] > *,
+.portal-main:not(.portal-main-home) > .grid > aside[class~="space-y-6"] > * {
+  margin-top: 0 !important;
+  min-height: 0;
+}
+
+.portal-main:not(.portal-main-home) [class~="gap-6"] {
+  gap: 14px !important;
+}
+
+.portal-main:not(.portal-main-home) [class~="space-y-6"] > :not([hidden]) ~ :not([hidden]) {
+  margin-top: 14px !important;
+}
+
+.portal-main:not(.portal-main-home) [class~="mt-6"] {
+  margin-top: 14px !important;
+}
+
+.portal-main:not(.portal-main-home) [class~="p-6"] {
+  padding: 18px !important;
+}
+
+.portal-main:not(.portal-main-home) [class~="p-5"] {
+  padding: 16px !important;
+}
+
+.portal-main:not(.portal-main-home) [class~="h-72"],
+.portal-main:not(.portal-main-home) [class~="h-48"],
+.portal-main:not(.portal-main-home) [class~="h-32"],
+.portal-main:not(.portal-main-home) [class~="h-24"] {
+  height: auto !important;
+  min-height: 88px !important;
+}
+
+.portal-main:not(.portal-main-home) textarea[class~="h-48"],
+.portal-main:not(.portal-main-home) textarea[class~="h-36"],
+.portal-main:not(.portal-main-home) textarea[class*="h-[420px]"] {
+  height: 128px !important;
+  min-height: 128px !important;
+}
+
+.portal-main:not(.portal-main-home) [class*="h-[420px]"] {
+  height: auto !important;
+  min-height: 220px !important;
+}
+
+.portal-main:not(.portal-main-home) pre[class*="max-h-"] {
+  max-height: 360px !important;
+}
+
+.portal-main:not(.portal-main-home) .exercise-dashboard {
+  grid-template-columns: minmax(0, 1.5fr) minmax(320px, 0.72fr);
+  gap: 14px;
+  align-items: start;
+}
+
+.portal-main:not(.portal-main-home) .exercise-side {
+  grid-auto-rows: auto;
+  align-content: start;
+}
+
+.portal-main:not(.portal-main-home) .exercise-empty {
+  min-height: 112px;
+}
+
+.portal-main:not(.portal-main-home) .exercise-main-card,
+.portal-main:not(.portal-main-home) .exercise-stats-card,
+.portal-main:not(.portal-main-home) .exercise-nav-card {
+  padding: 18px;
+}
+
+.portal-footer {
+  display: none;
+}
+
+@media (max-width: 1180px) {
+  .portal-main:not(.portal-main-home) .portal-page-head {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .portal-main:not(.portal-main-home) > .grid,
+  .portal-main:not(.portal-main-home) > .exercise-dashboard,
+  .portal-main:not(.portal-main-home) > .knowledge-hub {
+    min-height: auto;
+  }
+}
+
+@media (max-width: 720px) {
+  .portal-main:not(.portal-main-home) .portal-page-head {
+    min-height: auto;
+    padding: 16px;
+  }
+
+  .portal-main:not(.portal-main-home) .portal-page-head h1 {
+    font-size: 34px;
+  }
+}
