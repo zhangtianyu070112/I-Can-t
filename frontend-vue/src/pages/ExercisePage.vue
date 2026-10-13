@@ -949,10 +949,10 @@ watch(() => props.active, (active) => {
             {{ sessionPaused ? '继续' : '暂停' }}
           </button>
           <div class="exercise-mode-switch">
-            <button :class="{ active: hasQuestions && mode === 'training' }" :disabled="!hasQuestions || loading || answering || examInProgress" @click="selectMode('training')">训练模式</button>
-            <button :class="{ active: hasQuestions && mode === 'exam' }" :disabled="!hasQuestions || loading || answering || examInProgress" @click="selectMode('exam')">考试模式</button>
+            <button type="button" :class="{ active: hasQuestions && mode === 'training' }" :disabled="!hasQuestions || loading || answering || examInProgress" @click="selectMode('training')">训练模式</button>
+            <button type="button" :class="{ active: hasQuestions && mode === 'exam' }" :disabled="!hasQuestions || loading || answering || examInProgress" @click="selectMode('exam')">考试模式</button>
           </div>
-          <button class="exercise-primary-btn" :disabled="loading || answering || examInProgress" @click="refreshQuestions">
+          <button type="button" class="exercise-primary-btn" :disabled="loading || answering || examInProgress" @click="refreshQuestions">
             {{ loading ? '刷新中' : '刷新题目' }}
           </button>
         </div>
@@ -1029,8 +1029,8 @@ watch(() => props.active, (active) => {
             <span v-else>{{ answeredCount }} / {{ questions.length }} 已提交</span>
           </div>
           <div class="exercise-switch">
-            <button :disabled="navigationLocked || currentIndex === 0" @click="previousQuestion">上一题</button>
-            <button :disabled="navigationLocked || currentIndex === questions.length - 1" @click="nextQuestion">下一题</button>
+            <button type="button" :disabled="navigationLocked || currentIndex === 0" @click="previousQuestion">上一题</button>
+            <button type="button" :disabled="navigationLocked || currentIndex === questions.length - 1" @click="nextQuestion">下一题</button>
           </div>
         </div>
 
@@ -1072,19 +1072,19 @@ watch(() => props.active, (active) => {
         <input v-else v-model="selectedAnswer" class="exercise-answer-input" :disabled="responseLocked" placeholder="输入答案" @change="mode === 'exam' ? completeExamAnswer() : undefined" />
 
         <div class="exercise-actions">
-          <button class="exercise-secondary-btn practice-prev-btn" :disabled="navigationLocked || currentIndex === 0" @click="previousQuestion">
+          <button type="button" class="exercise-secondary-btn practice-prev-btn" :disabled="navigationLocked || currentIndex === 0" @click="previousQuestion">
             ← 上一题
           </button>
-          <button class="exercise-secondary-btn practice-mark-btn" :class="{ active: isCurrentMarked }" :disabled="navigationLocked" @click="toggleMarkCurrent">
+          <button type="button" class="exercise-secondary-btn practice-mark-btn" :class="{ active: isCurrentMarked }" :disabled="navigationLocked" @click="toggleMarkCurrent">
             ⚑ {{ isCurrentMarked ? '已标记' : '标记本题' }}
           </button>
-          <button v-if="mode === 'training'" class="exercise-primary-btn" :disabled="responseLocked || !selectedAnswer" @click="submitAnswer">
+          <button type="button" v-if="mode === 'training'" class="exercise-primary-btn" :disabled="responseLocked || !selectedAnswer" @click="submitAnswer">
             {{ answering ? '判题中' : '提交答案' }}
           </button>
-          <button v-else class="exercise-primary-btn" :disabled="answering || examFinished" @click="finishExam">
+          <button type="button" v-else class="exercise-primary-btn" :disabled="answering || examFinished" @click="finishExam">
             {{ answering ? '交卷中' : '交卷并查看诊断' }}
           </button>
-          <button class="exercise-primary-btn practice-next-btn" :disabled="navigationLocked || currentIndex === questions.length - 1" @click="nextQuestion">
+          <button type="button" class="exercise-primary-btn practice-next-btn" :disabled="navigationLocked || currentIndex === questions.length - 1" @click="nextQuestion">
             下一题 →
           </button>
           <span v-if="current.answered && showImmediateResult" :class="current.last_correct ? 'exercise-ok' : 'exercise-wrong'">
@@ -1204,7 +1204,7 @@ watch(() => props.active, (active) => {
         </div>
         <div v-if="!questions.length" class="exercise-compact-empty">载入后显示题号</div>
         <div v-else class="exercise-question-nav">
-          <button
+          <button type="button"
             v-for="(q, idx) in questions"
             :key="q.id"
             :class="[
@@ -1237,8 +1237,8 @@ watch(() => props.active, (active) => {
           </div>
           <p>进入考试模式后将开始计时，考试过程中不能切换模式或其它功能；如需离开，需要先交卷。</p>
           <div class="exercise-modal-actions">
-            <button class="exercise-secondary-btn" @click="cancelStartExam">取消</button>
-            <button class="exercise-primary-btn" @click="confirmStartExam">确定进入</button>
+            <button type="button" class="exercise-secondary-btn" @click="cancelStartExam">取消</button>
+            <button type="button" class="exercise-primary-btn" @click="confirmStartExam">确定进入</button>
           </div>
         </template>
       </section>

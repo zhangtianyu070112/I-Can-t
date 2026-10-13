@@ -12,6 +12,7 @@ const routes = [
 const viewports = [
   { label: '1440x900', width: 1440, height: 900 },
   { label: '1280x720', width: 1280, height: 720 },
+  { label: '1024x768', width: 1024, height: 768 },
   { label: '768x1024', width: 768, height: 1024 },
   { label: '390x844', width: 390, height: 844 },
 ] as const

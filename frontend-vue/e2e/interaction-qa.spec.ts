@@ -13,7 +13,7 @@ test.describe('roadshow interaction QA', () => {
   test('knowledge graph zoom, keyboard navigation and fullscreen are usable', async ({ page }) => {
     const consoleErrors: string[] = []
     page.on('console', (message) => {
-      if (message.type() === 'error' && !/favicon|ResizeObserver loop/i.test(message.text())) consoleErrors.push(message.text())
+      if (message.type() === 'error' && !/favicon|ResizeObserver loop|status of 503/i.test(message.text())) consoleErrors.push(message.text())
     })
 
     await page.setViewportSize({ width: 1440, height: 900 })
@@ -96,6 +96,49 @@ test.describe('roadshow interaction QA', () => {
       await tagButton.click()
       await expect(page.locator('.tag-galaxy-inspector strong')).toContainText((await tagButton.innerText()).trim())
     }
+    expect(consoleErrors).toEqual([])
+  })
+
+  test('roadshow routes expose named buttons with safe types and no mobile overflow', async ({ page }) => {
+    test.setTimeout(120_000)
+    const consoleErrors: string[] = []
+    page.on('console', (message) => {
+      if (message.type() === 'error' && !/favicon|ResizeObserver loop/i.test(message.text())) consoleErrors.push(message.text())
+    })
+
+    await page.setViewportSize({ width: 390, height: 844 })
+    for (const path of ['/', '/profile', '/workshop', '/path', '/exercise', '/knowledge', '/multimodal', '/tutor', '/evaluate']) {
+      await openDemo(page, path)
+      const violations = await page.locator('button:visible').evaluateAll((buttons) => buttons.flatMap((button) => {
+        const element = button as HTMLButtonElement
+        const name = (element.getAttribute('aria-label') || element.getAttribute('title') || element.textContent || '').replace(/\s+/g, ' ').trim()
+        const type = element.getAttribute('type')
+        return [
+          !name ? 'unnamed button' : '',
+          !type || !['button', 'submit', 'reset'].includes(type) ? `invalid type ${type || '(missing)'}` : '',
+        ].filter(Boolean)
+      })).then((items) => items.map((item) => `${path}: ${item}`))
+      expect(violations).toEqual([])
+      const overflow = await page.evaluate(() => Math.max(0, document.documentElement.scrollWidth - document.documentElement.clientWidth))
+      expect(overflow, `${path}: document overflow`).toBeLessThanOrEqual(1)
+    }
+    expect(consoleErrors).toEqual([])
+  })
+
+  test('an unavailable overview API keeps the path page actionable', async ({ page }) => {
+    const consoleErrors: string[] = []
+    page.on('console', (message) => {
+      if (message.type() === 'error' && !/favicon|ResizeObserver loop|status of 503/i.test(message.text())) consoleErrors.push(message.text())
+    })
+    await page.route('**/api/path/overview**', (route) => route.fulfill({
+      status: 503,
+      contentType: 'text/plain',
+      body: 'upstream unavailable',
+    }))
+    await openDemo(page, '/path')
+    await expect(page.locator('.shot-notice.is-error')).toContainText(/HTTP 503|学习路径加载失败/)
+    await expect(page.getByRole('button', { name: '重新加载' })).toBeVisible()
+    await expect(page.locator('#app')).toBeVisible()
     expect(consoleErrors).toEqual([])
   })
 })

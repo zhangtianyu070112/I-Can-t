@@ -10,7 +10,7 @@ from pydantic import BaseModel, Field
 
 from app.core.config import settings
 from app.core.ids import new_id
-from app.repo import get_resource_item, insert_learning_event
+from app.repo import get_resource_item_for_student, insert_learning_event
 from app.schemas import ApiResponse, ExportPackageRequest
 
 
@@ -62,7 +62,7 @@ async def export_package(req: ExportPackageRequest) -> ApiResponse:
     zip_name = f"{new_id()}.zip"
     zip_path = export_dir / zip_name
 
-    resource_ids = req.resource_ids
+    resource_ids = list(dict.fromkeys(req.resource_ids))
     if not resource_ids:
         return ApiResponse(
             request_id=request_id,
@@ -70,14 +70,18 @@ async def export_package(req: ExportPackageRequest) -> ApiResponse:
             error={"code": "EXPORT_EMPTY", "message": "resource_ids 为空"},
         )
 
+    items = []
+    for rid in resource_ids:
+        item = get_resource_item_for_student(req.student_id, rid)
+        if not item:
+            raise HTTPException(status_code=404, detail="resource_not_found_for_student")
+        items.append(item)
+
     with zipfile.ZipFile(zip_path, "w", compression=zipfile.ZIP_DEFLATED) as zf:
-        for rid in resource_ids:
-            item = get_resource_item(rid)
-            if not item:
-                continue
+        for item in items:
             file_path = settings.data_path / Path(item["content_uri"])
             if file_path.exists():
-                arcname = f"{item['type']}-{item['title']}-{rid}{file_path.suffix}"
+                arcname = f"{item['type']}-{item['title']}-{item['id']}{file_path.suffix}"
                 zf.write(file_path, arcname=arcname)
 
     insert_learning_event(req.student_id, "export", {"zip": str(zip_path)})

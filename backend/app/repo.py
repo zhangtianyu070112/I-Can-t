@@ -131,6 +131,19 @@ def get_resource_item(resource_id: str) -> dict[str, Any] | None:
     return None
 
 
+def get_resource_item_for_student(student_id: str, resource_id: str) -> dict[str, Any] | None:
+    """Return a resource only when it belongs to the requested learner.
+
+    Resource ids are intentionally opaque, but they are still supplied by the
+    browser.  Callers that have a learner context must use this scoped lookup
+    instead of scanning every user's directory.
+    """
+    for resource in list_resources(student_id):
+        if resource.get("id") == resource_id:
+            return resource
+    return None
+
+
 def list_resources(student_id: str) -> list[dict[str, Any]]:
     user_dir = get_user_dir(student_id)
     resources_file = user_dir / "resources.json"

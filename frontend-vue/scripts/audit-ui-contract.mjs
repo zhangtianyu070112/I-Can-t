@@ -20,6 +20,9 @@ function auditButtons(file) {
   }
   const openingTags = source.match(/<button\b(?:"[^"]*"|'[^']*'|[^>])*>/g) || []
   for (const tag of openingTags) {
+    const type = tag.match(/\btype\s*=\s*["']([^"']+)["']/i)?.[1]
+    if (!type) failures.push(`${path.relative(process.cwd(), file)}: button must declare an explicit type: ${tag.replace(/\s+/g, ' ')}`)
+    else if (!['button', 'submit', 'reset'].includes(type.toLowerCase())) failures.push(`${path.relative(process.cwd(), file)}: unsupported button type ${type}`)
     const actionable = /@click(?:\.[\w-]+)*\s*=|type\s*=\s*["']submit["']/.test(tag)
     if (!actionable) failures.push(`${path.relative(process.cwd(), file)}: button lacks @click or submit behavior: ${tag.replace(/\s+/g, ' ')}`)
   }

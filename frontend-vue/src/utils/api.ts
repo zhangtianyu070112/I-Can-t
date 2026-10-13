@@ -10,18 +10,74 @@ export type ApiResponse<T> = {
   error?: ApiError | null
 }
 
+function fallbackRequestId() {
+  return `client-${Date.now().toString(36)}`
+}
+
+async function readApiResponse<T>(resp: Response): Promise<ApiResponse<T>> {
+  const raw = await resp.text()
+  let payload: Partial<ApiResponse<T>> | null = null
+  if (raw.trim()) {
+    try {
+      payload = JSON.parse(raw) as Partial<ApiResponse<T>>
+    } catch {
+      payload = null
+    }
+  }
+
+  if (payload && typeof payload === 'object' && typeof payload.success === 'boolean') {
+    return {
+      request_id: String(payload.request_id || resp.headers.get('x-request-id') || fallbackRequestId()),
+      success: payload.success,
+      data: payload.data as T,
+      error: payload.error || null,
+    }
+  }
+
+  const statusMessage = resp.ok
+    ? '服务器返回了无法识别的响应，请重试。'
+    : `请求失败（HTTP ${resp.status}），请稍后重试。`
+  return {
+    request_id: resp.headers.get('x-request-id') || fallbackRequestId(),
+    success: false,
+    data: null as T,
+    error: {
+      code: resp.ok ? 'INVALID_API_RESPONSE' : `HTTP_${resp.status}`,
+      message: statusMessage,
+    },
+  }
+}
+
 export async function apiPost<T>(path: string, body: unknown): Promise<ApiResponse<T>> {
-  const resp = await fetch(path, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  })
-  return resp.json()
+  try {
+    const resp = await fetch(path, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    })
+    return await readApiResponse<T>(resp)
+  } catch (reason: any) {
+    return {
+      request_id: fallbackRequestId(),
+      success: false,
+      data: null as T,
+      error: { code: 'NETWORK_ERROR', message: reason?.message || '网络连接失败，请检查服务后重试。' },
+    }
+  }
 }
 
 export async function apiGet<T>(path: string): Promise<ApiResponse<T>> {
-  const resp = await fetch(path)
-  return resp.json()
+  try {
+    const resp = await fetch(path)
+    return await readApiResponse<T>(resp)
+  } catch (reason: any) {
+    return {
+      request_id: fallbackRequestId(),
+      success: false,
+      data: null as T,
+      error: { code: 'NETWORK_ERROR', message: reason?.message || '网络连接失败，请检查服务后重试。' },
+    }
+  }
 }
 
 export type StreamEvent = {
@@ -71,7 +127,12 @@ export async function apiStream<T>(
         .map((line) => line.trim())
         .find((line) => line.startsWith('data: '))
       if (!line) continue
-      const payload = JSON.parse(line.slice(6)) as StreamEvent
+      let payload: StreamEvent
+      try {
+        payload = JSON.parse(line.slice(6)) as StreamEvent
+      } catch {
+        throw new Error('流式响应格式错误，请重试。')
+      }
       if (payload.event === 'start') handlers.onStart?.(payload.data)
       else if (payload.event === 'status') handlers.onStatus?.(payload.data)
       else if (payload.event === 'chunk') handlers.onChunk?.(payload.data)

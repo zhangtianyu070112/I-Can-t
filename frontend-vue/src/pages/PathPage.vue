@@ -677,7 +677,7 @@ onBeforeUnmount(() => {
               <button v-for="item in displayedRecommendations" :key="resourceId(item) || resourceTitle(item)" type="button" :class="{ 'is-selected': resourceId(item) === resourceId(selectedResource) }" role="listitem" @click="selectedResourceId = resourceId(item)">
                 <span class="recommend-icon"><BookOpenCheck :size="15" /></span><span><small>{{ resourceType(item) }}</small><strong>{{ resourceTitle(item) }}</strong><em>{{ resourceTiming(item) }}</em></span><b v-if="resourceScore(item) !== null">{{ resourceScore(item) }}</b>
               </button>
-              <button v-if="recommendations.length > recommendationPreviewLimit" class="recommend-more" type="button" role="listitem" @click="showAllRecommendations = !showAllRecommendations"><span>{{ showAllRecommendations ? '收起推荐列表' : `查看其余 ${recommendations.length - recommendationPreviewLimit} 条` }}</span><ChevronDown :size="14" :class="{ 'is-open': showAllRecommendations }" /></button>
+              <button type="button" v-if="recommendations.length > recommendationPreviewLimit" class="recommend-more" role="listitem" @click="showAllRecommendations = !showAllRecommendations"><span>{{ showAllRecommendations ? '收起推荐列表' : `查看其余 ${recommendations.length - recommendationPreviewLimit} 条` }}</span><ChevronDown :size="14" :class="{ 'is-open': showAllRecommendations }" /></button>
             </div>
             <article v-if="selectedResource" class="recommendation-detail">
               <header><div><span class="os-eyebrow">WHY THIS RESOURCE</span><h3>{{ resourceTitle(selectedResource) }}</h3></div><span v-if="resourceScore(selectedResource) !== null" class="score-badge"><small>推荐分</small><strong>{{ resourceScore(selectedResource) }}</strong></span></header>

@@ -135,7 +135,7 @@ async def workshop_export(req: FlexibleRequest) -> ApiResponse:
         data={
             "status": "ready",
             "resource_count": len(resources),
-            "message": "资源已沉淀到本地文件库，可通过 /api/resources/{id}?inline=true 查看内容。",
+            "message": "资源已沉淀到本地文件库，可通过 /api/resources/{id}?student_id={student_id}&inline=true 查看当前学习者内容。",
         },
     )
 
