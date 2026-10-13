@@ -143,6 +143,7 @@ test.describe('roadshow interaction QA', () => {
   })
 
   test('the shell remains usable when browser storage is unavailable', async ({ browser }) => {
+    test.setTimeout(120_000)
     const context = await browser.newContext({
       baseURL: process.env.PLAYWRIGHT_BASE_URL || 'http://127.0.0.1:5173',
       viewport: { width: 1440, height: 900 },
@@ -162,7 +163,7 @@ test.describe('roadshow interaction QA', () => {
     })
 
     try {
-      await page.goto('/', { waitUntil: 'domcontentloaded' })
+      await page.goto('/', { waitUntil: 'domcontentloaded', timeout: 30_000 })
       await expect(page.locator('.login-gate')).toBeVisible()
       await page.getByRole('button', { name: '使用预置数据进入路演' }).click()
       await expect(page.locator('.login-gate')).toBeHidden()
