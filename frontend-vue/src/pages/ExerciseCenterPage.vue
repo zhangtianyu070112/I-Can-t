@@ -231,6 +231,7 @@ const galaxyCanvas = ref<HTMLCanvasElement | null>(null)
 const activeGalaxyTag = ref('')
 const galaxyAngle = ref(0)
 const galaxyZoom = ref(1)
+const galaxyInteractionStatus = ref('错题标签星系已就绪。')
 const galaxyTargets = ref<{ tag: string; x: number; y: number; radius: number }[]>([])
 const masteredGalaxyStars = ref<any[]>([])
 const galaxyMouse = { x: 0, y: 0, targetX: 0, targetY: 0, active: false }
@@ -263,6 +264,9 @@ let galaxyRefreshFeedbackTimer: number | null = null
 let galaxyReferenceTexture: any = null
 let galaxyReferenceLoading = false
 const galaxyTextureCache = new Map<string, any>()
+const GALAXY_ZOOM_MIN = 0.62
+const GALAXY_ZOOM_MAX = 1.9
+const GALAXY_ZOOM_STEP = 0.08
 const redoSession = ref<{
   scope: 'single' | 'course' | 'all'
   title: string
@@ -1972,6 +1976,10 @@ function animateTagGalaxy() {
     line.geometry.attributes.position.needsUpdate = true
   }
   galaxyRenderer.render(galaxyScene, galaxyCamera)
+  if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
+    galaxyFrame = null
+    return
+  }
   galaxyFrame = window.requestAnimationFrame(animateTagGalaxy)
 }
 
@@ -1996,8 +2004,9 @@ function drawTagGalaxy() {
 
   const nodes = tagGalaxy.value.nodes
   const links = tagGalaxy.value.links
+  const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
   const angle = galaxyAngle.value
-  galaxyAngle.value += 0.006
+  if (!reducedMotion) galaxyAngle.value += 0.006
   const time = angle * 160
   const projected = new Map<string, any>()
   const centerX = width / 2
@@ -2349,7 +2358,7 @@ function drawTagGalaxy() {
     targets.push({ tag: node.tag, x: node.px, y: node.py, radius: radius + 18 })
   })
   galaxyTargets.value = targets
-  galaxyFrame = window.requestAnimationFrame(drawTagGalaxy)
+  if (!reducedMotion) galaxyFrame = window.requestAnimationFrame(drawTagGalaxy)
 }
 
 function onGalaxyClick(event: MouseEvent) {
@@ -2358,7 +2367,10 @@ function onGalaxyClick(event: MouseEvent) {
   const x = event.clientX - rect.left
   const y = event.clientY - rect.top
   const target = galaxyTargets.value.find((item) => Math.hypot(item.x - x, item.y - y) <= item.radius)
-  if (target) activeGalaxyTag.value = target.tag
+  if (target) {
+    activeGalaxyTag.value = target.tag
+    galaxyInteractionStatus.value = `已选择错题标签${target.tag}。`
+  }
 }
 
 function onGalaxyPointerMove(event: MouseEvent) {
@@ -2376,8 +2388,39 @@ function onGalaxyPointerLeave() {
 }
 
 function onGalaxyWheel(event: WheelEvent) {
-  const nextZoom = galaxyZoom.value + (event.deltaY > 0 ? -0.08 : 0.08)
-  galaxyZoom.value = Math.max(0.62, Math.min(1.9, Number(nextZoom.toFixed(2))))
+  setGalaxyZoom(galaxyZoom.value + (event.deltaY > 0 ? -GALAXY_ZOOM_STEP : GALAXY_ZOOM_STEP), false)
+}
+
+function setGalaxyZoom(value: number, announce = true) {
+  galaxyZoom.value = Math.max(GALAXY_ZOOM_MIN, Math.min(GALAXY_ZOOM_MAX, Number(value.toFixed(2))))
+  if (announce) galaxyInteractionStatus.value = `错题标签星系缩放至${Math.round(galaxyZoom.value * 100)}%。`
+}
+
+function resetGalaxyZoom() {
+  setGalaxyZoom(1)
+}
+
+function handleGalaxyKeydown(event: KeyboardEvent) {
+  if (event.key === '+' || event.key === '=') {
+    event.preventDefault()
+    setGalaxyZoom(galaxyZoom.value + GALAXY_ZOOM_STEP)
+    return
+  }
+  if (event.key === '-' || event.key === '_') {
+    event.preventDefault()
+    setGalaxyZoom(galaxyZoom.value - GALAXY_ZOOM_STEP)
+    return
+  }
+  if (event.key === '0') {
+    event.preventDefault()
+    resetGalaxyZoom()
+    return
+  }
+  if (event.key === 'Escape') {
+    event.preventDefault()
+    activeGalaxyTag.value = ''
+    galaxyInteractionStatus.value = '已清除当前错题标签。'
+  }
 }
 
 const activeGalaxyNode = computed(() => {
@@ -3161,8 +3204,14 @@ onBeforeUnmount(() => {
             <p>标签按专业、课程和知识点聚合成星系节点，连线表示错题标签之间的关联强度。</p>
           </div>
           <div class="studio-actions">
-            <button class="studio-btn ghost" @click="trySwitchPage('wrongBook')">返回错题本</button>
-            <button class="studio-btn secondary" :disabled="galaxyRefreshing || wrongBookLoading" @click="refreshTagGalaxy">{{ galaxyRefreshing ? '刷新中' : (galaxyRefreshFeedback || '刷新星系') }}</button>
+            <button class="studio-btn ghost" type="button" @click="trySwitchPage('wrongBook')">返回错题本</button>
+            <button class="studio-btn secondary" type="button" :disabled="galaxyRefreshing || wrongBookLoading" @click="refreshTagGalaxy">{{ galaxyRefreshing ? '刷新中' : (galaxyRefreshFeedback || '刷新星系') }}</button>
+            <div class="galaxy-zoom-tools" role="group" aria-label="错题标签星系缩放控制">
+              <button class="studio-btn ghost" type="button" aria-label="缩小错题标签星系" title="缩小 (-)" :disabled="galaxyZoom <= GALAXY_ZOOM_MIN" @click="setGalaxyZoom(galaxyZoom - GALAXY_ZOOM_STEP)">−</button>
+              <output aria-live="polite">{{ Math.round(galaxyZoom * 100) }}%</output>
+              <button class="studio-btn ghost" type="button" aria-label="放大错题标签星系" title="放大 (+)" :disabled="galaxyZoom >= GALAXY_ZOOM_MAX" @click="setGalaxyZoom(galaxyZoom + GALAXY_ZOOM_STEP)">＋</button>
+              <button class="studio-btn ghost" type="button" aria-label="恢复错题标签星系百分之百" title="恢复 100% (0)" :aria-pressed="galaxyZoom === 1" @click="resetGalaxyZoom">100%</button>
+            </div>
           </div>
         </div>
         <div class="tag-galaxy-body">
@@ -3170,10 +3219,14 @@ onBeforeUnmount(() => {
             <canvas
               ref="galaxyCanvas"
               aria-label="错题标签星系"
+              role="img"
+              tabindex="0"
+              aria-describedby="tag-galaxy-help"
               @click="onGalaxyClick"
               @mousemove="onGalaxyPointerMove"
               @mouseleave="onGalaxyPointerLeave"
               @wheel.prevent="onGalaxyWheel"
+              @keydown="handleGalaxyKeydown"
             ></canvas>
           </div>
           <aside class="tag-galaxy-inspector">
@@ -3183,7 +3236,8 @@ onBeforeUnmount(() => {
             </div>
             <p v-if="activeGalaxyNode">{{ activeGalaxyNode.major }} / {{ activeGalaxyNode.course }}</p>
             <p v-if="activeGalaxyNode">涉及 {{ activeGalaxyNode.count }} 道错题，知识点：{{ activeGalaxyNode.points?.slice(0, 3).join('、') || '综合知识点' }}</p>
-            <p>移动鼠标会改变星系大小、倾斜和视差；滚轮缩放：{{ Math.round(galaxyZoom * 100) }}%。点击任意标签后，相关标签会围绕它形成动态星系。</p>
+            <p id="tag-galaxy-help">移动鼠标会改变星系大小、倾斜和视差；滚轮或 +/- 缩放，按 0 恢复 100%，按 Escape 清除标签。当前缩放：{{ Math.round(galaxyZoom * 100) }}%。</p>
+            <span class="galaxy-sr-only" aria-live="polite">{{ galaxyInteractionStatus }}</span>
             <div class="tag-galaxy-clusters">
               <button
                 v-for="node in tagGalaxy.nodes"
