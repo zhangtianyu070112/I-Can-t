@@ -143,6 +143,8 @@ test('roadshow entry loads the included learner data', async ({ page }) => {
   await page.getByLabel('输入课程问题').fill('用例图')
   await page.getByRole('button', { name: '检索本地资料' }).click()
   await expect(page.getByText('检索依据')).toBeVisible()
+  await page.getByRole('link', { name: '知识中枢' }).click()
+  await expect(page.locator('.kg-node').first()).toBeVisible({ timeout: 15_000 })
 })
 
 test('exercise page can load and submit practice', async ({ page }) => {
