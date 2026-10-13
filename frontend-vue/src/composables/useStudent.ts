@@ -1,4 +1,5 @@
 import { computed, ref, watch } from 'vue'
+import { readStorage, writeStorage } from '@/utils/storage'
 
 const key = 'las_student_id'
 const majorKey = 'las_major'
@@ -11,17 +12,17 @@ function createLearnerId() {
   return `learner-${suffix}`
 }
 
-const storedStudentId = localStorage.getItem(key)
+const storedStudentId = readStorage('local', key)
 const initialStudentId = storedStudentId || createLearnerId()
-localStorage.setItem(key, initialStudentId)
+writeStorage('local', key, initialStudentId)
 
 const studentId = ref(initialStudentId)
-const major = ref(localStorage.getItem(majorKey) || '')
-const goals = ref(localStorage.getItem(goalsKey) || '')
+const major = ref(readStorage('local', majorKey) || '')
+const goals = ref(readStorage('local', goalsKey) || '')
 
-watch(studentId, (v) => localStorage.setItem(key, v))
-watch(major, (v) => localStorage.setItem(majorKey, v))
-watch(goals, (v) => localStorage.setItem(goalsKey, v))
+watch(studentId, (v) => writeStorage('local', key, v))
+watch(major, (v) => writeStorage('local', majorKey, v))
+watch(goals, (v) => writeStorage('local', goalsKey, v))
 
 export function useStudent() {
   return {

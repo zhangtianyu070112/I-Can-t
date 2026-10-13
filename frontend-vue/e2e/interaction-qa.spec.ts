@@ -141,4 +141,118 @@ test.describe('roadshow interaction QA', () => {
     await expect(page.locator('#app')).toBeVisible()
     expect(consoleErrors).toEqual([])
   })
+
+  test('the shell remains usable when browser storage is unavailable', async ({ browser }) => {
+    const context = await browser.newContext({
+      baseURL: process.env.PLAYWRIGHT_BASE_URL || 'http://127.0.0.1:5173',
+      viewport: { width: 1440, height: 900 },
+    })
+    const page = await context.newPage()
+    const pageErrors: string[] = []
+    const consoleErrors: string[] = []
+    page.on('pageerror', (error) => pageErrors.push(error.message))
+    page.on('console', (message) => {
+      if (message.type() === 'error' && !/favicon|ResizeObserver loop/i.test(message.text())) consoleErrors.push(message.text())
+    })
+    await page.addInitScript(() => {
+      const unavailable = () => { throw new DOMException('Storage is unavailable', 'SecurityError') }
+      Storage.prototype.getItem = unavailable
+      Storage.prototype.setItem = unavailable
+      Storage.prototype.removeItem = unavailable
+    })
+
+    try {
+      await page.goto('/', { waitUntil: 'domcontentloaded' })
+      await expect(page.locator('.login-gate')).toBeVisible()
+      await page.getByRole('button', { name: '使用预置数据进入路演' }).click()
+      await expect(page.locator('.login-gate')).toBeHidden()
+
+      await page.getByRole('link', { name: '多模态实验室' }).click()
+      await expect(page).toHaveURL(/\/multimodal$/)
+      const input = page.getByPlaceholder('发消息或按住空格说话...')
+      await input.fill('在无法保存浏览器会话时测试本地演示')
+      await page.getByRole('button', { name: '发送' }).click()
+      await expect(page.locator('#app')).toBeVisible()
+      await expect(page.locator('body')).not.toContainText('Cannot read properties')
+    } finally {
+      await context.close()
+    }
+    expect(pageErrors).toEqual([])
+    expect(consoleErrors).toEqual([])
+  })
+
+  test('login, settings focus and logout keep the shell state observable', async ({ page }) => {
+    await page.goto('/', { waitUntil: 'domcontentloaded' })
+    await page.getByPlaceholder('手机号').fill('100')
+    await page.getByPlaceholder('密码').fill('wrong')
+    await page.getByPlaceholder('验证码').fill('bad')
+    await page.getByRole('button', { name: '登录并进入系统' }).click()
+    await expect(page.getByRole('alert')).toContainText(/手机号|密码|验证码/)
+
+    await page.getByRole('button', { name: '显示密码' }).click()
+    await expect(page.getByPlaceholder('密码')).toHaveAttribute('type', 'text')
+    await page.getByRole('button', { name: '使用预置数据进入路演' }).click()
+    await expect(page.locator('.login-gate')).toBeHidden()
+
+    const settingsTrigger = page.getByRole('button', { name: '打开用户设置' })
+    await settingsTrigger.click()
+    await expect(page.locator('#portal-settings-panel')).toBeFocused()
+    await page.keyboard.press('Escape')
+    await expect(settingsTrigger).toBeFocused()
+    await settingsTrigger.click()
+    await page.getByRole('button', { name: '退出登录' }).click()
+    await expect(page.locator('.login-gate')).toBeVisible()
+
+    await page.goto('/profile', { waitUntil: 'domcontentloaded' })
+    await expect(page).toHaveURL(/\/$/)
+    await expect(page.locator('.login-gate')).toBeVisible()
+  })
+
+  test('fresh browser contexts keep learner ids isolated across route loads', async ({ browser }) => {
+    const baseURL = process.env.PLAYWRIGHT_BASE_URL || 'http://127.0.0.1:5173'
+    const openLearner = async (studentId: string) => {
+      const context = await browser.newContext({ baseURL, viewport: { width: 1280, height: 720 } })
+      const page = await context.newPage()
+      const requests: string[] = []
+      page.on('request', (request) => {
+        if (request.url().includes('/api/')) requests.push(request.url())
+      })
+      await page.addInitScript((id) => {
+        sessionStorage.setItem('zx-resource-agent-authed', '1')
+        localStorage.setItem('las_student_id', id)
+      }, studentId)
+      await page.goto('/profile', { waitUntil: 'domcontentloaded' })
+      await expect(page.locator('.login-gate')).toBeHidden()
+      await expect(page.locator('.profile-command-page')).toContainText(`ID: ${studentId}`)
+      await expect.poll(() => requests.some((url) => url.includes(encodeURIComponent(studentId)))).toBe(true)
+      return { context, page, requests }
+    }
+
+    const first = await openLearner('cross-check-learner-a')
+    const second = await openLearner('cross-check-learner-b')
+    try {
+      expect(first.requests.some((url) => url.includes('cross-check-learner-b'))).toBe(false)
+      expect(second.requests.some((url) => url.includes('cross-check-learner-a'))).toBe(false)
+      await expect(first.page.locator('.profile-command-page')).not.toContainText('cross-check-learner-b')
+      await expect(second.page.locator('.profile-command-page')).not.toContainText('cross-check-learner-a')
+    } finally {
+      await first.context.close()
+      await second.context.close()
+    }
+  })
+
+  test('client navigation preserves the active shell through back and forward', async ({ page }) => {
+    await openDemo(page, '/')
+    await page.locator('.portal-nav-link', { hasText: '用户画像' }).click()
+    await expect(page).toHaveURL(/\/profile$/)
+    await page.locator('.portal-nav-link', { hasText: '路径推送' }).click()
+    await expect(page).toHaveURL(/\/path$/)
+    await page.goBack()
+    await expect(page).toHaveURL(/\/profile$/)
+    await expect(page.locator('.profile-command-page')).toBeVisible()
+    await page.goForward()
+    await expect(page).toHaveURL(/\/path$/)
+    await expect(page.locator('.path-command-page')).toBeVisible()
+    await expect(page.locator('.login-gate')).toBeHidden()
+  })
 })

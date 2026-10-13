@@ -23,6 +23,7 @@ import {
 } from 'lucide-vue-next'
 import { apiPost, apiStream } from '@/utils/api'
 import { useStudent } from '@/composables/useStudent'
+import { readStorage, writeStorage } from '@/utils/storage'
 import { useRouter } from 'vue-router'
 
 type ModeKey = 'auto' | 'video' | 'code' | 'writing' | 'visual' | 'quiz' | 'mindmap'
@@ -140,12 +141,12 @@ function compactTitle(text: string) {
 }
 
 function persistSessions() {
-  localStorage.setItem(STORAGE_KEY.value, JSON.stringify(sessions.value.slice(0, 40)))
+  writeStorage('local', STORAGE_KEY.value, JSON.stringify(sessions.value.slice(0, 40)))
 }
 
 function loadSessions() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY.value)
+    const raw = readStorage('local', STORAGE_KEY.value)
     const parsed = raw ? JSON.parse(raw) : []
     if (Array.isArray(parsed)) sessions.value = parsed.filter((item) => item?.id && Array.isArray(item.messages))
   } catch {
