@@ -3,8 +3,8 @@ $ErrorActionPreference = 'Stop'
 $projectRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 $backendDir = Join-Path $projectRoot 'backend'
 $frontendIndex = Join-Path $projectRoot 'frontend-vue\dist\index.html'
-$sourceDataDir = Join-Path $backendDir 'data'
-$roadshowDataDir = Join-Path $projectRoot 'roadshow-data'
+$seedDataDir = Join-Path $projectRoot 'roadshow-data'
+$roadshowDataDir = Join-Path $projectRoot 'roadshow-runtime-data'
 $pythonExe = Join-Path $backendDir '.venv\Scripts\python.exe'
 if (!(Test-Path -LiteralPath $pythonExe)) { $pythonExe = 'python' }
 
@@ -12,16 +12,17 @@ if (!(Test-Path -LiteralPath $frontendIndex)) {
   throw '缺少前端构建文件。请先在 frontend-vue 目录执行 npm ci 和 npm run build。'
 }
 
+if (!(Test-Path -LiteralPath (Join-Path $seedDataDir 'users\demo'))) {
+  throw '缺少路演预置数据。请确认仓库中的 roadshow-data 目录完整。'
+}
+
 & $pythonExe -c 'import fastapi, uvicorn, fitz, pptx'
 if ($LASTEXITCODE -ne 0) { throw '缺少后端依赖。请先运行安装依赖.ps1。' }
 
 $env:PYTHONPATH = $backendDir
-foreach ($folder in @('users', 'files')) {
-  $demoTarget = Join-Path $roadshowDataDir "$folder\demo"
-  if (!(Test-Path -LiteralPath $demoTarget)) {
-    New-Item -ItemType Directory -Force -Path (Join-Path $roadshowDataDir $folder) | Out-Null
-    Copy-Item -LiteralPath (Join-Path $sourceDataDir "$folder\demo") -Destination $demoTarget -Recurse -Force
-  }
+if (!(Test-Path -LiteralPath (Join-Path $roadshowDataDir 'users\demo'))) {
+  New-Item -ItemType Directory -Force -Path $roadshowDataDir | Out-Null
+  Copy-Item -Path (Join-Path $seedDataDir '*') -Destination $roadshowDataDir -Recurse -Force
 }
 $env:DATA_DIR = $roadshowDataDir
 $env:FRONTEND_DIST = Join-Path $projectRoot 'frontend-vue\dist'
@@ -56,7 +57,7 @@ try {
   }
   if (!$ready) { throw "服务启动失败。请查看 $stderrPath" }
   Write-Host "路演版已启动：$url" -ForegroundColor Green
-  Write-Host '点击"使用预置数据进入路演"，即可查看离线数据。关闭本窗口会停止服务。'
+  Write-Host '点击“使用预置数据进入路演”，即可查看离线数据。关闭本窗口会停止服务。'
   if (!$NoBrowser) { Start-Process $url }
   Wait-Process -Id $server.Id
 } finally {

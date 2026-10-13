@@ -10,6 +10,8 @@ frontend-vue/dist/
 frontend-vue/test-results/
 frontend-vue/playwright-report/
 test-results/
+roadshow-runtime-data/
+roadshow-logs/
 playwright-report/
 frontend-react/node_modules/
 frontend-react/.vite/

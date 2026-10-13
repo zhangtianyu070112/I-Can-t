@@ -1,4 +1,4 @@
-param(
+﻿param(
   [string]$HostAddr = "127.0.0.1",
   [int]$BackendPort = 8000,
   [int]$FrontendPort = 5173,
@@ -14,8 +14,7 @@ $resultsDir = Join-Path $root "test-results"
 New-Item -ItemType Directory -Force -Path $resultsDir | Out-Null
 $runtimeDataDir = Join-Path $resultsDir ("runtime-data-" + [guid]::NewGuid().ToString("N"))
 New-Item -ItemType Directory -Force -Path $runtimeDataDir | Out-Null
-Copy-Item -LiteralPath (Join-Path $backendDir "data\users") -Destination $runtimeDataDir -Recurse -Force
-Copy-Item -LiteralPath (Join-Path $backendDir "data\files") -Destination $runtimeDataDir -Recurse -Force
+Copy-Item -Path (Join-Path $root "roadshow-data\*") -Destination $runtimeDataDir -Recurse -Force
 
 function Write-Step($message) {
   Write-Host ""
