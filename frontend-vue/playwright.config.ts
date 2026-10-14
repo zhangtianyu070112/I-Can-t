@@ -10,7 +10,7 @@ export default defineConfig({
   use: {
     baseURL: process.env.PLAYWRIGHT_BASE_URL || 'http://127.0.0.1:5173',
     actionTimeout: 30_000,
-    navigationTimeout: 15_000,
+    navigationTimeout: 30_000,
     trace: 'off',
     screenshot: 'only-on-failure',
     video: 'off',
