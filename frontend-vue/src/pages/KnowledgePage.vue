@@ -1138,7 +1138,7 @@ onUnmounted(() => {
           <option v-for="course in graph.courses" :key="course.id" :value="course.id">{{ course.title }}</option>
         </select>
         <p>{{ graph.course_summary || '选择课程后，系统会提取章节、知识点与配套资源。' }}</p>
-        <input ref="textbookInput" class="textbook-file-input" type="file" accept=".txt,.md,.pdf,.docx" @change="uploadTextbook" />
+        <input ref="textbookInput" class="textbook-file-input" type="file" accept=".txt,.md,.pdf,.docx" aria-label="选择电子教材文件" @change="uploadTextbook" />
         <button class="textbook-upload-button" type="button" :disabled="uploadingTextbook" @click="chooseTextbook">
           <LoaderCircle v-if="uploadingTextbook" class="spin" :size="16" />
           <Upload v-else :size="16" />{{ uploadingTextbook ? '正在生成知识结构' : '上传电子教材' }}
