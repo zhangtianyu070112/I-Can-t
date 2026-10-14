@@ -1264,7 +1264,15 @@
   display: grid;
   min-height: 0;
   flex: 1;
-  grid-template-rows: minmax(0, 1fr) 35px;
+  grid-template-rows: auto minmax(0, 1fr) 35px;
+}
+
+.graph-browse-help {
+  margin: 0;
+  padding: 8px 4px;
+  color: #435b7d;
+  font-size: 12px;
+  line-height: 1.5;
 }
 
 .graph-scroll {
@@ -1297,6 +1305,9 @@
 }
 
 .graph-zoom-layer {
+  position: absolute;
+  top: 34px;
+  left: 0;
   transform-origin: top left;
   will-change: transform;
 }
@@ -1651,6 +1662,7 @@
 
   .graph-scroll {
     overflow-x: auto;
+    height: min(64vh, 680px);
   }
 }
 

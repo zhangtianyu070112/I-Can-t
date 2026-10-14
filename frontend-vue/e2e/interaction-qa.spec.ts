@@ -10,6 +10,28 @@ async function openDemo(page: import('@playwright/test').Page, path: string) {
 }
 
 test.describe('roadshow interaction QA', () => {
+  test('demo course shows real chapter structure and fits all lanes on a tablet', async ({ page }) => {
+    await page.setViewportSize({ width: 768, height: 1024 })
+    await openDemo(page, '/knowledge')
+    await expect(page.locator('.kg-node.type-chapter')).toHaveCount(6)
+    expect(await page.locator('.kg-node.type-concept').count()).toBeGreaterThanOrEqual(18)
+    await expect(page.locator('.course-graph-head')).toContainText('预置演示讲义')
+    await expect(page.locator('.graph-browse-help')).toContainText('共 6 章')
+    const bounds = await page.locator('.graph-scroll').evaluate((viewport) => {
+      const frame = viewport.getBoundingClientRect()
+      return [...viewport.querySelectorAll('.kg-node')].map(node => {
+        const rect = node.getBoundingClientRect()
+        return { left: rect.left - frame.left, right: rect.right - frame.right }
+      })
+    })
+    expect(bounds.every(rect => rect.left >= -1 && rect.right <= 1)).toBe(true)
+    const lastChapter = page.locator('.kg-node.type-chapter').last()
+    await lastChapter.click()
+    await expect(lastChapter).toHaveAttribute('aria-selected', 'true')
+    await page.getByRole('button', { name: '适配图谱到窗口' }).click()
+    expect(await page.locator('.graph-scroll').evaluate(el => el.scrollTop)).toBe(0)
+  })
+
   test('knowledge graph zoom, keyboard navigation and fullscreen are usable', async ({ page }) => {
     const consoleErrors: string[] = []
     page.on('console', (message) => {
@@ -21,6 +43,7 @@ test.describe('roadshow interaction QA', () => {
     await expect(page.locator('.kg-node').first()).toBeVisible({ timeout: 15_000 })
 
     const zoomValue = page.locator('.graph-zoom-value')
+    await page.getByRole('button', { name: '恢复图谱百分之百' }).click()
     await expect(zoomValue).toHaveText('100%')
     await page.getByRole('button', { name: '放大图谱' }).click()
     await expect(zoomValue).toHaveText('110%')
