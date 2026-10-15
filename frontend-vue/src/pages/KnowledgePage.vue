@@ -222,6 +222,7 @@ function nodeTypeLabel(item: KnowledgeNode | null | undefined) {
 function sourceLabel(value: string | undefined) {
   return ({
     uploaded_textbook: '上传教材',
+    demo_course: '预置演示讲义',
     course_material: '课程资料',
     generated_resource: '生成资源',
     generated: '生成资源',
@@ -275,7 +276,7 @@ function showNotice(message: string) {
 const selectedCourseInfo = computed(() => graph.value.courses.find((item) => item.id === selectedCourse.value))
 const courseNode = computed(() => graph.value.nodes.find((item) => nodeKind(item) === 'course') || null)
 const allWeakNodes = computed(() => graph.value.nodes
-  .filter((item) => !['course', 'resource'].includes(nodeKind(item)) && masteryValue(item.mastery) < 60)
+  .filter((item) => !['course', 'resource'].includes(nodeKind(item)) && Number(item.evidence_count) > 0 && masteryValue(item.mastery) < 60)
   .sort((a, b) => masteryValue(a.mastery) - masteryValue(b.mastery)))
 
 const workspacePipeline = computed<Array<{ name: string; status?: string; count?: number }>>(
@@ -287,7 +288,7 @@ function matchesMastery(item: KnowledgeNode) {
   if (masteryFilter.value === 'all' || nodeKind(item) === 'course') return true
   const score = masteryValue(item.mastery)
   if (masteryFilter.value === 'mastered') return score >= 80
-  if (masteryFilter.value === 'weak') return score > 0 && score < 60
+  if (masteryFilter.value === 'weak') return Number(item.evidence_count) > 0 && score < 60
   if (masteryFilter.value === 'unlearned') return score <= 0
   return score < 70
 }
@@ -492,12 +493,12 @@ const graphLayout = computed(() => {
     })
   })
   if (orphanConcepts.length) cursor += orphanConcepts.length * (nodeHeight + rowGap) + groupGap
-  const height = Math.max(520, cursor + top - groupGap)
+  const height = Math.max(240, cursor + top - groupGap, top * 2 + resources.length * (nodeHeight + groupGap) - groupGap)
 
   if (root) positioned.push({
     node: root,
     x: x.course,
-    y: Math.max(top, (height - nodeHeight) / 2),
+    y: top,
     width: nodeWidth.course,
     height: nodeHeight + 12,
     index: 1,
@@ -505,7 +506,7 @@ const graphLayout = computed(() => {
   resources.forEach((resource, resourceIndex) => positioned.push({
     node: resource,
     x: x.resource,
-    y: Math.max(top, ((resourceIndex + 0.5) * height / Math.max(1, resources.length)) - nodeHeight / 2),
+    y: top + resourceIndex * (nodeHeight + groupGap),
     width: nodeWidth.resource,
     height: nodeHeight,
     index: resourceIndex + 1,
@@ -542,7 +543,7 @@ const graphLayout = computed(() => {
 
 const graphZoomStyle = computed(() => ({
   width: `${graphLayout.value.width * graphZoom.value}px`,
-  minHeight: `${34 + graphLayout.value.height * graphZoom.value}px`,
+  height: `${34 + graphLayout.value.height * graphZoom.value}px`,
 }))
 
 const graphZoomLayerStyle = computed(() => ({
@@ -659,8 +660,8 @@ function fitGraphToViewport() {
     return
   }
   const widthRatio = viewport.clientWidth / graphLayout.value.width
-  const heightRatio = Math.max(0, (viewport.clientHeight - 44) / graphLayout.value.height)
-  setGraphZoom(Math.min(1, widthRatio, heightRatio))
+  setGraphZoom(Math.min(1, widthRatio))
+  viewport.scrollTo({ left: 0, top: 0 })
 }
 
 function handleGraphWheel(event: WheelEvent) {
@@ -752,7 +753,7 @@ async function loadGraph(options: { initial?: boolean; preserveSelection?: boole
     const graphData = await getKnowledgeGraph(studentId.value, {
       sourceType: sourceType.value,
       course: selectedCourse.value,
-      maxNodes: 24,
+      maxNodes: 100,
     }) as KnowledgeGraph
     graph.value = {
       ...emptyGraph(),
@@ -774,6 +775,12 @@ async function loadGraph(options: { initial?: boolean; preserveSelection?: boole
   } finally {
     graphLoading.value = false
     refreshing.value = false
+    await nextTick()
+    updateViewportWidth()
+    if (initial && graphViewport.value) {
+      const width = graphViewport.value.clientWidth
+      setGraphZoom(width < 560 ? 1 : Math.min(1, width / graphLayout.value.width), false)
+    }
   }
 }
 
@@ -1088,6 +1095,13 @@ function handleKeydown(event: KeyboardEvent) {
 
 watch(filteredNodes, () => nextTick(ensureSelection))
 
+// The viewport is mounted only after loading finishes, and is replaced on retry.
+watch(graphViewport, (viewport) => {
+  resizeObserver?.disconnect()
+  if (viewport) resizeObserver?.observe(viewport)
+  updateViewportWidth()
+})
+
 onMounted(() => {
   void loadPage()
   window.addEventListener('keydown', handleKeydown)
@@ -1138,7 +1152,7 @@ onUnmounted(() => {
           <option v-for="course in graph.courses" :key="course.id" :value="course.id">{{ course.title }}</option>
         </select>
         <p>{{ graph.course_summary || '选择课程后，系统会提取章节、知识点与配套资源。' }}</p>
-        <input ref="textbookInput" class="textbook-file-input" type="file" accept=".txt,.md,.pdf,.docx" @change="uploadTextbook" />
+        <input ref="textbookInput" class="textbook-file-input" type="file" accept=".txt,.md,.pdf,.docx" aria-label="选择电子教材文件" @change="uploadTextbook" />
         <button class="textbook-upload-button" type="button" :disabled="uploadingTextbook" @click="chooseTextbook">
           <LoaderCircle v-if="uploadingTextbook" class="spin" :size="16" />
           <Upload v-else :size="16" />{{ uploadingTextbook ? '正在生成知识结构' : '上传电子教材' }}
@@ -1230,7 +1244,7 @@ onUnmounted(() => {
             <output class="graph-zoom-value" aria-live="polite">{{ Math.round(graphZoom * 100) }}%</output>
             <button type="button" aria-label="放大图谱" title="放大图谱 (+)" :disabled="graphZoom >= GRAPH_ZOOM_MAX" @click="setGraphZoom(graphZoom + GRAPH_ZOOM_STEP)">＋</button>
             <button type="button" aria-label="恢复图谱百分之百" title="恢复 100% (0)" :aria-pressed="graphZoom === 1" @click="resetGraphZoom">100%</button>
-            <button type="button" aria-label="适配图谱到窗口" title="适配窗口" @click="fitGraphToViewport">适配</button>
+            <button type="button" aria-label="适配图谱到窗口" title="适配宽度并回到顶部，向下滚动查看全部章节" @click="fitGraphToViewport">适配</button>
             <input
               class="graph-zoom-slider"
               type="range"
@@ -1274,7 +1288,8 @@ onUnmounted(() => {
       </div>
 
       <div v-else class="graph-stage">
-        <div ref="graphViewport" class="graph-scroll" @wheel="handleGraphWheel">
+        <p id="graph-browse-help" class="graph-browse-help">共 {{ graph.stats.chapters || 0 }} 章、{{ graph.stats.concepts || 0 }} 个知识点。上下滚动查看章节，窄屏可左右滑动查看资源；点击节点查看来源。</p>
+        <div ref="graphViewport" class="graph-scroll" aria-describedby="graph-browse-help" @wheel="handleGraphWheel">
           <div class="graph-inner" :style="graphZoomStyle">
             <div class="lane-heads">
               <span>课程入口</span><span>章节模块</span><span>核心知识点</span><span>资源 / 题型</span>

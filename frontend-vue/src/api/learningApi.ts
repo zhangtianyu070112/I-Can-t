@@ -225,7 +225,12 @@ export async function generateResourcePackStream(
     for (const packet of packets) {
       const dataLine = packet.split('\n').find((line) => line.startsWith('data: '))
       if (!dataLine) continue
-      const envelope = JSON.parse(dataLine.slice(6))
+      let envelope: any
+      try {
+        envelope = JSON.parse(dataLine.slice(6))
+      } catch {
+        throw new Error('资源生成返回了无法识别的流式数据，请重试。')
+      }
       if (envelope.error) throw new Error(String(envelope.error))
       const event = envelope.event as ResourceGenerationEvent | undefined
       if (!event) continue

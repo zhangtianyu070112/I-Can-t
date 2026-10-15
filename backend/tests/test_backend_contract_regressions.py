@@ -15,7 +15,7 @@ from app.api.routers.tutor import _with_legacy_tutor_fields
 from app.core.config import settings
 from app.db.sqlite import init_db
 from app.main import create_app
-from app.repo import get_user_events, read_json
+from app.repo import get_user_events, get_user_usages, insert_resource_item, read_json
 from app.services.learning_state import _localize_profile_text, evaluation_overview, path_overview, profile_overview
 from app.services.exercise_bank import _ability_radar, build_exercise_session, wrong_book_summary
 from app.services.knowledge_hub import mastery_data
@@ -63,6 +63,60 @@ class BackendContractRegressionTest(unittest.TestCase):
         with patch("app.db.sqlite.sqlite3.connect", return_value=connection):
             init_db()
         connection.close.assert_called_once_with()
+
+    def test_resource_reads_and_exports_are_scoped_to_the_requesting_learner(self) -> None:
+        owner = "resource-owner"
+        other = "resource-other"
+        content_path = Path(self.temp_dir.name) / "files" / owner / "lesson.md"
+        content_path.parent.mkdir(parents=True, exist_ok=True)
+        content_path.write_text("# owner resource\n真实内容", encoding="utf-8")
+        item = insert_resource_item(
+            student_id=owner,
+            type="lecture_doc",
+            title="Owner lesson",
+            tags=["scope"],
+            content_uri=f"files/{owner}/lesson.md",
+            meta={},
+        )
+
+        own = self.client.get(f"/api/resources/{item['id']}?student_id={owner}&inline=true")
+        self.assertEqual(own.status_code, 200)
+        self.assertEqual(own.json()["data"]["content"], "# owner resource\n真实内容")
+
+        foreign = self.client.get(f"/api/resources/{item['id']}?student_id={other}&inline=true")
+        self.assertEqual(foreign.status_code, 404)
+        self.assertFalse(foreign.json()["success"])
+
+        foreign_export = self.client.post(
+            "/api/export/package",
+            json={"student_id": other, "resource_ids": [item["id"]]},
+        )
+        self.assertEqual(foreign_export.status_code, 404)
+        self.assertFalse(foreign_export.json()["success"])
+
+    def test_push_feedback_rejects_unknown_resources_and_is_idempotent(self) -> None:
+        student_id = "feedback-owner"
+        item = insert_resource_item(
+            student_id=student_id,
+            type="lecture_doc",
+            title="Feedback lesson",
+            tags=[],
+            content_uri="files/feedback-owner/lesson.md",
+            meta={},
+        )
+        missing = self.client.post(
+            "/api/push/feedback",
+            json={"student_id": student_id, "resource_id": "missing", "action": "like", "feedback": {}},
+        )
+        self.assertEqual(missing.status_code, 200)
+        self.assertFalse(missing.json()["success"])
+
+        payload = {"student_id": student_id, "resource_id": item["id"], "action": "like", "feedback": {"source": "qa"}}
+        first = self.client.post("/api/push/feedback", json=payload)
+        second = self.client.post("/api/push/feedback", json=payload)
+        self.assertTrue(first.json()["success"])
+        self.assertTrue(second.json()["data"]["idempotent"])
+        self.assertEqual(len(get_user_usages(student_id)), 1)
 
     def test_cors_rejects_untrusted_origins_but_keeps_local_development(self) -> None:
         headers = {

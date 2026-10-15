@@ -6,7 +6,7 @@ from fastapi import APIRouter, HTTPException, Query
 
 from app.core.config import settings
 from app.core.ids import new_id
-from app.repo import get_resource_item, list_resources
+from app.repo import get_resource_item_for_student, list_resources
 from app.schemas import ApiResponse
 from app.services.resource_structure import extract_resource_structures
 
@@ -15,9 +15,13 @@ router = APIRouter(prefix="/api/resources", tags=["resources"])
 
 
 @router.get("/{resource_id}", response_model=ApiResponse)
-async def get_resource(resource_id: str, inline: bool = Query(default=False)) -> ApiResponse:
+async def get_resource(
+    resource_id: str,
+    student_id: str = Query(..., min_length=1),
+    inline: bool = Query(default=False),
+) -> ApiResponse:
     request_id = new_id()
-    item = get_resource_item(resource_id)
+    item = get_resource_item_for_student(student_id, resource_id)
     if not item:
         raise HTTPException(status_code=404, detail="resource_not_found")
     if inline:

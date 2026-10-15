@@ -20,10 +20,20 @@ if (!(Test-Path -LiteralPath (Join-Path $seedDataDir 'users\demo'))) {
 if ($LASTEXITCODE -ne 0) { throw '缺少后端依赖。请先运行安装依赖.ps1。' }
 
 $env:PYTHONPATH = $backendDir
-if (!(Test-Path -LiteralPath (Join-Path $roadshowDataDir 'users\demo'))) {
-  New-Item -ItemType Directory -Force -Path $roadshowDataDir | Out-Null
-  Copy-Item -Path (Join-Path $seedDataDir '*') -Destination $roadshowDataDir -Recurse -Force
+# The roadshow runtime is disposable. Rebuild it on every launch so stale
+# textbook caches, learner records, and generated resources cannot change what
+# the presenter sees after a previous test or local run.
+$resolvedProjectRoot = [System.IO.Path]::GetFullPath($projectRoot)
+$resolvedRoadshowDataDir = [System.IO.Path]::GetFullPath($roadshowDataDir)
+$projectPrefix = $resolvedProjectRoot.TrimEnd('\') + '\'
+if ($resolvedRoadshowDataDir -eq $resolvedProjectRoot -or !$resolvedRoadshowDataDir.StartsWith($projectPrefix, [System.StringComparison]::OrdinalIgnoreCase)) {
+  throw "路演运行目录必须位于仓库根目录内：$resolvedRoadshowDataDir"
 }
+if (Test-Path -LiteralPath $resolvedRoadshowDataDir) {
+  Remove-Item -LiteralPath $resolvedRoadshowDataDir -Recurse -Force
+}
+New-Item -ItemType Directory -Force -Path $resolvedRoadshowDataDir | Out-Null
+Copy-Item -Path (Join-Path $seedDataDir '*') -Destination $resolvedRoadshowDataDir -Recurse -Force
 $env:DATA_DIR = $roadshowDataDir
 $env:FRONTEND_DIST = Join-Path $projectRoot 'frontend-vue\dist'
 $env:APP_ENV = 'roadshow'

@@ -80,6 +80,8 @@ GRAPH_DOMAIN_CONCEPTS = (
     "代码审计", "渗透测试", "加密", "SQL注入", "跨站脚本",
     "软件工程", "软件过程", "需求工程", "需求分析", "用例建模", "软件设计", "体系结构",
     "详细设计", "软件测试", "软件维护", "配置管理", "项目管理", "质量保证", "UML", "敏捷开发",
+    "业务场景", "系统边界", "干系人", "需求访谈", "用户故事", "用例图", "参与者", "用例规约",
+    "领域模型", "类图", "关联关系", "非功能需求", "性能指标", "可用性", "验收标准", "需求追踪", "变更控制",
     "机器学习", "监督学习", "无监督学习", "回归", "分类", "聚类", "特征工程", "模型训练",
     "模型评估", "过拟合", "交叉验证", "决策树", "支持向量机", "神经网络", "scikit-learn",
 )
@@ -110,6 +112,11 @@ GRAPH_CONCEPT_SUFFIXES = (
 )
 
 GRAPH_COURSE_CONCEPT_HINTS = (
+    (("需求分析", "需求建模"), (
+        "业务场景", "系统边界", "干系人", "需求访谈", "用户故事", "需求分析",
+        "参与者", "用例图", "用例规约", "领域模型", "类图", "关联关系",
+        "非功能需求", "性能指标", "可用性", "验收标准", "需求追踪", "变更控制",
+    )),
     (("c语言", "手把手教你学c"), (
         "C语言", "数据类型", "变量", "常量", "运算符", "流程控制", "条件语句", "循环语句",
         "函数", "数组", "指针", "结构体", "文件操作", "预处理", "内存管理", "算法", "程序调试",
@@ -434,10 +441,17 @@ def _extract_textbook_text(content: bytes, suffix: str) -> str:
 
 
 def _build_uploaded_textbook_chapters(text: str, title: str) -> list[dict[str, Any]]:
+    # Markdown heading levels must be respected: the book title is not a
+    # chapter, and subsection headings belong to their enclosing chapter.
+    markdown = list(re.finditer(r"(?m)^ {0,3}(#{1,6})[ \t]+([^\n]+?)[ \t]*#*[ \t]*$", text))
+    level = min((len(m.group(1)) for m in markdown if len(m.group(1)) >= 2), default=1)
+    markdown_chapters = [m for m in markdown if len(m.group(1)) == level]
+    if level == 1 and len(markdown_chapters) == 1:
+        markdown_chapters = []
     heading_pattern = re.compile(
         r"(?m)^\s*(第\s*[一二三四五六七八九十百零〇\d]+\s*(?:章|节|篇|部分)\s*[^\n]{0,48}|\d+(?:\.\d+){0,3}\s+[^\n]{2,48}|[一二三四五六七八九十]+[、.]\s*[^\n]{2,48})\s*$"
     )
-    matches = list(heading_pattern.finditer(text))[:40]
+    matches = (markdown_chapters or list(heading_pattern.finditer(text)))[:40]
     sections: list[tuple[str, str]] = []
     if matches:
         for index, match in enumerate(matches):
@@ -445,7 +459,7 @@ def _build_uploaded_textbook_chapters(text: str, title: str) -> list[dict[str, A
             end = matches[index + 1].start() if index + 1 < len(matches) else len(text)
             body = text[start:end].strip()
             if len(body) >= 30:
-                sections.append((match.group(1).strip(), body))
+                sections.append((match.group(2 if markdown_chapters else 1).strip(), body))
     if not sections:
         chunk_size = 5000
         sections = [
@@ -561,6 +575,17 @@ def graph_data(
 def _graph_sources(student_id: str) -> list[dict[str, Any]]:
     sources: list[dict[str, Any]] = []
     seen_titles: set[str] = set()
+    demo_path = PROJECT_ROOT / "roadshow-data" / "courses" / "requirements-modeling.md"
+    if student_id == "demo" and demo_path.is_file():
+        title = "软件需求分析与建模"
+        chapters = _build_uploaded_textbook_chapters(demo_path.read_text(encoding="utf-8"), title)
+        sources.append({
+            "id": "demo-course:requirements-modeling", "title": title,
+            "source_type": "demo_course", "path": str(demo_path),
+            "summary": f"预置演示讲义 · {len(chapters)} 章；知识点由讲义正文解析，掌握度来自学习记录。",
+            "chapters": chapters,
+        })
+        seen_titles.add(title)
     index = _read_json_file(CHAPTER_KNOWLEDGE_DIR / "index.json")
     if isinstance(index, dict):
         for textbook_id, metadata in index.items():
@@ -602,7 +627,7 @@ def _graph_sources(student_id: str) -> list[dict[str, Any]]:
     # Generated question banks, lecture notes, practice cases, QA reports,
     # extended readings and path outputs remain available as related resource
     # nodes, but must never be parsed as if they were courses.
-    sources.sort(key=lambda item: (0 if item["source_type"] == "uploaded_textbook" else 1, item["title"]))
+    sources.sort(key=lambda item: ({"demo_course": 0, "uploaded_textbook": 1}.get(item["source_type"], 2), item["title"]))
     return sources
 
 
@@ -823,7 +848,7 @@ def _extract_graph_keywords(text: str, title: str, limit: int) -> list[str]:
     ranked_domain.sort()
 
     selected = _clean_keywords([item[2] for item in ranked_domain], title)
-    if len(selected) >= limit or (matched_course_concepts and len(selected) >= 6):
+    if len(selected) >= limit or (matched_course_concepts and selected):
         return selected[:limit]
 
     # Fallback for an uploaded course outside the built-in domain vocabulary.

@@ -10,10 +10,32 @@ async function openDemo(page: import('@playwright/test').Page, path: string) {
 }
 
 test.describe('roadshow interaction QA', () => {
+  test('demo course shows real chapter structure and fits all lanes on a tablet', async ({ page }) => {
+    await page.setViewportSize({ width: 768, height: 1024 })
+    await openDemo(page, '/knowledge')
+    await expect(page.locator('.kg-node.type-chapter')).toHaveCount(6)
+    expect(await page.locator('.kg-node.type-concept').count()).toBeGreaterThanOrEqual(18)
+    await expect(page.locator('.course-graph-head')).toContainText('预置演示讲义')
+    await expect(page.locator('.graph-browse-help')).toContainText('共 6 章')
+    const bounds = await page.locator('.graph-scroll').evaluate((viewport) => {
+      const frame = viewport.getBoundingClientRect()
+      return [...viewport.querySelectorAll('.kg-node')].map(node => {
+        const rect = node.getBoundingClientRect()
+        return { left: rect.left - frame.left, right: rect.right - frame.right }
+      })
+    })
+    expect(bounds.every(rect => rect.left >= -1 && rect.right <= 1)).toBe(true)
+    const lastChapter = page.locator('.kg-node.type-chapter').last()
+    await lastChapter.click()
+    await expect(lastChapter).toHaveAttribute('aria-selected', 'true')
+    await page.getByRole('button', { name: '适配图谱到窗口' }).click()
+    expect(await page.locator('.graph-scroll').evaluate(el => el.scrollTop)).toBe(0)
+  })
+
   test('knowledge graph zoom, keyboard navigation and fullscreen are usable', async ({ page }) => {
     const consoleErrors: string[] = []
     page.on('console', (message) => {
-      if (message.type() === 'error' && !/favicon|ResizeObserver loop/i.test(message.text())) consoleErrors.push(message.text())
+      if (message.type() === 'error' && !/favicon|ResizeObserver loop|status of 503/i.test(message.text())) consoleErrors.push(message.text())
     })
 
     await page.setViewportSize({ width: 1440, height: 900 })
@@ -21,6 +43,7 @@ test.describe('roadshow interaction QA', () => {
     await expect(page.locator('.kg-node').first()).toBeVisible({ timeout: 15_000 })
 
     const zoomValue = page.locator('.graph-zoom-value')
+    await page.getByRole('button', { name: '恢复图谱百分之百' }).click()
     await expect(zoomValue).toHaveText('100%')
     await page.getByRole('button', { name: '放大图谱' }).click()
     await expect(zoomValue).toHaveText('110%')
@@ -97,5 +120,163 @@ test.describe('roadshow interaction QA', () => {
       await expect(page.locator('.tag-galaxy-inspector strong')).toContainText((await tagButton.innerText()).trim())
     }
     expect(consoleErrors).toEqual([])
+  })
+
+  test('roadshow routes expose named buttons with safe types and no mobile overflow', async ({ page }) => {
+    test.setTimeout(120_000)
+    const consoleErrors: string[] = []
+    page.on('console', (message) => {
+      if (message.type() === 'error' && !/favicon|ResizeObserver loop/i.test(message.text())) consoleErrors.push(message.text())
+    })
+
+    await page.setViewportSize({ width: 390, height: 844 })
+    for (const path of ['/', '/profile', '/workshop', '/path', '/exercise', '/knowledge', '/multimodal', '/tutor', '/evaluate']) {
+      await openDemo(page, path)
+      const violations = await page.locator('button:visible').evaluateAll((buttons) => buttons.flatMap((button) => {
+        const element = button as HTMLButtonElement
+        const name = (element.getAttribute('aria-label') || element.getAttribute('title') || element.textContent || '').replace(/\s+/g, ' ').trim()
+        const type = element.getAttribute('type')
+        return [
+          !name ? 'unnamed button' : '',
+          !type || !['button', 'submit', 'reset'].includes(type) ? `invalid type ${type || '(missing)'}` : '',
+        ].filter(Boolean)
+      })).then((items) => items.map((item) => `${path}: ${item}`))
+      expect(violations).toEqual([])
+      const overflow = await page.evaluate(() => Math.max(0, document.documentElement.scrollWidth - document.documentElement.clientWidth))
+      expect(overflow, `${path}: document overflow`).toBeLessThanOrEqual(1)
+    }
+    expect(consoleErrors).toEqual([])
+  })
+
+  test('an unavailable overview API keeps the path page actionable', async ({ page }) => {
+    const consoleErrors: string[] = []
+    page.on('console', (message) => {
+      if (message.type() === 'error' && !/favicon|ResizeObserver loop|status of 503/i.test(message.text())) consoleErrors.push(message.text())
+    })
+    await page.route('**/api/path/overview**', (route) => route.fulfill({
+      status: 503,
+      contentType: 'text/plain',
+      body: 'upstream unavailable',
+    }))
+    await openDemo(page, '/path')
+    await expect(page.locator('.shot-notice.is-error')).toContainText(/HTTP 503|学习路径加载失败/)
+    await expect(page.getByRole('button', { name: '重新加载' })).toBeVisible()
+    await expect(page.locator('#app')).toBeVisible()
+    expect(consoleErrors).toEqual([])
+  })
+
+  test('the shell remains usable when browser storage is unavailable', async ({ browser }) => {
+    test.setTimeout(120_000)
+    const context = await browser.newContext({
+      baseURL: process.env.PLAYWRIGHT_BASE_URL || 'http://127.0.0.1:5173',
+      viewport: { width: 1440, height: 900 },
+    })
+    const page = await context.newPage()
+    const pageErrors: string[] = []
+    const consoleErrors: string[] = []
+    page.on('pageerror', (error) => pageErrors.push(error.message))
+    page.on('console', (message) => {
+      if (message.type() === 'error' && !/favicon|ResizeObserver loop/i.test(message.text())) consoleErrors.push(message.text())
+    })
+    await page.addInitScript(() => {
+      const unavailable = () => { throw new DOMException('Storage is unavailable', 'SecurityError') }
+      Storage.prototype.getItem = unavailable
+      Storage.prototype.setItem = unavailable
+      Storage.prototype.removeItem = unavailable
+    })
+
+    try {
+      await page.goto('/', { waitUntil: 'domcontentloaded', timeout: 30_000 })
+      await expect(page.locator('.login-gate')).toBeVisible()
+      await page.getByRole('button', { name: '使用预置数据进入路演' }).click()
+      await expect(page.locator('.login-gate')).toBeHidden()
+
+      await page.getByRole('link', { name: '多模态实验室' }).click()
+      await expect(page).toHaveURL(/\/multimodal$/)
+      const input = page.getByPlaceholder('发消息或按住空格说话...')
+      await input.fill('在无法保存浏览器会话时测试本地演示')
+      await page.getByRole('button', { name: '发送' }).click()
+      await expect(page.locator('#app')).toBeVisible()
+      await expect(page.locator('body')).not.toContainText('Cannot read properties')
+    } finally {
+      await context.close()
+    }
+    expect(pageErrors).toEqual([])
+    expect(consoleErrors).toEqual([])
+  })
+
+  test('login, settings focus and logout keep the shell state observable', async ({ page }) => {
+    await page.goto('/', { waitUntil: 'domcontentloaded' })
+    await page.getByPlaceholder('手机号').fill('100')
+    await page.getByPlaceholder('密码').fill('wrong')
+    await page.getByPlaceholder('验证码').fill('bad')
+    await page.getByRole('button', { name: '登录并进入系统' }).click()
+    await expect(page.getByRole('alert')).toContainText(/手机号|密码|验证码/)
+
+    await page.getByRole('button', { name: '显示密码' }).click()
+    await expect(page.getByPlaceholder('密码')).toHaveAttribute('type', 'text')
+    await page.getByRole('button', { name: '使用预置数据进入路演' }).click()
+    await expect(page.locator('.login-gate')).toBeHidden()
+
+    const settingsTrigger = page.getByRole('button', { name: '打开用户设置' })
+    await settingsTrigger.click()
+    await expect(page.locator('#portal-settings-panel')).toBeFocused()
+    await page.keyboard.press('Escape')
+    await expect(settingsTrigger).toBeFocused()
+    await settingsTrigger.click()
+    await page.getByRole('button', { name: '退出登录' }).click()
+    await expect(page.locator('.login-gate')).toBeVisible()
+
+    await page.goto('/profile', { waitUntil: 'domcontentloaded' })
+    await expect(page).toHaveURL(/\/$/)
+    await expect(page.locator('.login-gate')).toBeVisible()
+  })
+
+  test('fresh browser contexts keep learner ids isolated across route loads', async ({ browser }) => {
+    const baseURL = process.env.PLAYWRIGHT_BASE_URL || 'http://127.0.0.1:5173'
+    const openLearner = async (studentId: string) => {
+      const context = await browser.newContext({ baseURL, viewport: { width: 1280, height: 720 } })
+      const page = await context.newPage()
+      const requests: string[] = []
+      page.on('request', (request) => {
+        if (request.url().includes('/api/')) requests.push(request.url())
+      })
+      await page.addInitScript((id) => {
+        sessionStorage.setItem('zx-resource-agent-authed', '1')
+        localStorage.setItem('las_student_id', id)
+      }, studentId)
+      await page.goto('/profile', { waitUntil: 'domcontentloaded' })
+      await expect(page.locator('.login-gate')).toBeHidden()
+      await expect(page.locator('.profile-command-page')).toContainText(`ID: ${studentId}`)
+      await expect.poll(() => requests.some((url) => url.includes(encodeURIComponent(studentId)))).toBe(true)
+      return { context, page, requests }
+    }
+
+    const first = await openLearner('cross-check-learner-a')
+    const second = await openLearner('cross-check-learner-b')
+    try {
+      expect(first.requests.some((url) => url.includes('cross-check-learner-b'))).toBe(false)
+      expect(second.requests.some((url) => url.includes('cross-check-learner-a'))).toBe(false)
+      await expect(first.page.locator('.profile-command-page')).not.toContainText('cross-check-learner-b')
+      await expect(second.page.locator('.profile-command-page')).not.toContainText('cross-check-learner-a')
+    } finally {
+      await first.context.close()
+      await second.context.close()
+    }
+  })
+
+  test('client navigation preserves the active shell through back and forward', async ({ page }) => {
+    await openDemo(page, '/')
+    await page.locator('.portal-nav-link', { hasText: '用户画像' }).click()
+    await expect(page).toHaveURL(/\/profile$/)
+    await page.locator('.portal-nav-link', { hasText: '路径推送' }).click()
+    await expect(page).toHaveURL(/\/path$/)
+    await page.goBack()
+    await expect(page).toHaveURL(/\/profile$/)
+    await expect(page.locator('.profile-command-page')).toBeVisible()
+    await page.goForward()
+    await expect(page).toHaveURL(/\/path$/)
+    await expect(page.locator('.path-command-page')).toBeVisible()
+    await expect(page.locator('.login-gate')).toBeHidden()
   })
 })

@@ -2754,8 +2754,8 @@ onBeforeUnmount(() => {
             <p>先选择专业大类、小类和课程目录；如果选择其它，课程类别和课程内容会同步进入自定义模式。</p>
           </div>
           <div class="studio-actions">
-            <button class="studio-btn ghost" @click="resetCourseWorkflow">重新选择</button>
-            <button class="studio-btn secondary" @click="goCustomize">进入出题定制</button>
+            <button type="button" class="studio-btn ghost" @click="resetCourseWorkflow">重新选择</button>
+            <button type="button" class="studio-btn secondary" @click="goCustomize">进入出题定制</button>
           </div>
         </div>
         <div class="studio-panel-body">
@@ -2834,7 +2834,7 @@ onBeforeUnmount(() => {
                 <strong>专业课程定位</strong>
                 <p>当前选择会作为题库生成的学科上下文，影响知识点范围、案例背景和难度表达。</p>
               </div>
-              <button class="studio-btn secondary" @click="goCustomize">下一步</button>
+              <button type="button" class="studio-btn secondary" @click="goCustomize">下一步</button>
             </div>
             <div class="stage-step">
               <div class="stage-step-num">2</div>
@@ -2842,7 +2842,7 @@ onBeforeUnmount(() => {
                 <strong>错题与诊断联动</strong>
                 <p>也可以直接进入错题本，从历史错误反推薄弱点，再回到出题定制生成针对性题库。</p>
               </div>
-              <button class="studio-btn ghost" @click="trySwitchPage('wrongBook')">查看错题本</button>
+              <button type="button" class="studio-btn ghost" @click="trySwitchPage('wrongBook')">查看错题本</button>
             </div>
           </div>
         </div>
@@ -2855,7 +2855,7 @@ onBeforeUnmount(() => {
             <p>题目只来自当前学习节点；你可以定制难度、数量和题型，完成后系统自动更新掌握度并判定是否晋级。</p>
           </div>
           <div class="studio-actions">
-            <button class="studio-btn" :disabled="generating || totalQuestionCount <= 0 || !currentPathStage" @click="generateFromCustomize">
+            <button type="button" class="studio-btn" :disabled="generating || totalQuestionCount <= 0 || !currentPathStage" @click="generateFromCustomize">
               {{ generating ? '题库生成中' : '生成阶段题库并开始' }}
             </button>
           </div>
@@ -2913,10 +2913,10 @@ onBeforeUnmount(() => {
             </div>
             <p class="studio-muted">当前身份：{{ studentId }}。题库只使用“{{ pathStageTitle }}”的目标与验收标准作为出题上下文。</p>
             <div class="studio-actions">
-              <button class="studio-btn" :disabled="generating || totalQuestionCount <= 0 || !currentPathStage" @click="generateFromCustomize">
+              <button type="button" class="studio-btn" :disabled="generating || totalQuestionCount <= 0 || !currentPathStage" @click="generateFromCustomize">
                 {{ generating ? '题库生成中' : '生成阶段题库并开始学习' }}
               </button>
-              <button class="studio-btn ghost" @click="trySwitchPage('wrongBook')">从错题本调整</button>
+              <button type="button" class="studio-btn ghost" @click="trySwitchPage('wrongBook')">从错题本调整</button>
             </div>
             <div v-if="error" class="text-sm font-bold text-orange-600">{{ error }}</div>
           </div>
@@ -2935,10 +2935,10 @@ onBeforeUnmount(() => {
           </div>
           <div v-if="!redoSession" class="studio-actions">
             <span v-if="selectedWrongRecordIds.length" class="wrongbook-selection-pill">已选 {{ selectedWrongRecordIds.length }} 题</span>
-            <button v-if="wrongBookStats.totalWrong" class="studio-btn secondary" @click="openRedoAll">{{ redoAllButtonText }}</button>
-            <button v-if="wrongBookStats.totalWrong" class="studio-btn danger" :disabled="!selectedWrongRecordIds.length" @click="deleteSelectedWrongRecords">批量删除</button>
-            <button v-if="wrongBookStats.totalWrong" class="studio-btn danger" @click="deleteAllWrongRecords">一键删除错题</button>
-            <button class="studio-btn ghost" :disabled="wrongBookLoading" @click="loadWrongBook">{{ wrongBookLoading ? '刷新中' : '刷新错题本' }}</button>
+            <button type="button" v-if="wrongBookStats.totalWrong" class="studio-btn secondary" @click="openRedoAll">{{ redoAllButtonText }}</button>
+            <button type="button" v-if="wrongBookStats.totalWrong" class="studio-btn danger" :disabled="!selectedWrongRecordIds.length" @click="deleteSelectedWrongRecords">批量删除</button>
+            <button type="button" v-if="wrongBookStats.totalWrong" class="studio-btn danger" @click="deleteAllWrongRecords">一键删除错题</button>
+            <button type="button" class="studio-btn ghost" :disabled="wrongBookLoading" @click="loadWrongBook">{{ wrongBookLoading ? '刷新中' : '刷新错题本' }}</button>
           </div>
         </div>
         <div class="studio-panel-body">
@@ -2965,14 +2965,14 @@ onBeforeUnmount(() => {
                 <p>{{ redoSession.title }} · {{ redoSession.index + 1 }} / {{ redoSession.queue.length }}</p>
               </div>
               <div class="studio-actions">
-                <button class="studio-btn ghost" @click="finishRedoSession">结束重做</button>
+                <button type="button" class="studio-btn ghost" @click="finishRedoSession">结束重做</button>
               </div>
             </div>
 
             <div v-if="redoSession.completed" class="wrongbook-redo-summary">
               <strong>本轮错题重做完成</strong>
               <span>答对 {{ redoSession.correct }} 题，仍需复盘 {{ redoSession.wrong }} 题。</span>
-              <button class="studio-btn" @click="finishRedoSession">回到错题本</button>
+              <button type="button" class="studio-btn" @click="finishRedoSession">回到错题本</button>
             </div>
 
             <template v-else>
@@ -2998,8 +2998,8 @@ onBeforeUnmount(() => {
               </div>
               <input v-else v-model="redoAnswer" class="exercise-answer-input mt-3" placeholder="输入重做答案" />
               <div class="studio-actions mt-3">
-                <button class="studio-btn" :disabled="!redoAnswer || !!redoResult" @click="submitRedo">提交重做</button>
-                <button v-if="redoResult" class="studio-btn secondary" @click="nextRedoQuestion">
+                <button type="button" class="studio-btn" :disabled="!redoAnswer || !!redoResult" @click="submitRedo">提交重做</button>
+                <button type="button" v-if="redoResult" class="studio-btn secondary" @click="nextRedoQuestion">
                   {{ redoSession.index >= redoSession.queue.length - 1 ? '完成本轮' : '下一题' }}
                 </button>
               </div>
@@ -3037,7 +3037,7 @@ onBeforeUnmount(() => {
             <div class="wrongbook-directory-head">
               <strong>课程文件夹</strong>
               <div class="studio-actions">
-                <button class="studio-btn ghost" @click="toggleAllCourseFolders">{{ allCourseFoldersOpen ? '收起全部' : '展开全部' }}</button>
+                <button type="button" class="studio-btn ghost" @click="toggleAllCourseFolders">{{ allCourseFoldersOpen ? '收起全部' : '展开全部' }}</button>
               </div>
             </div>
             <div v-if="!courseFolders.length" class="studio-empty">暂无课程文件夹。</div>
@@ -3112,8 +3112,8 @@ onBeforeUnmount(() => {
                   <div class="wrongbook-course-head">
                     <strong>{{ course.course }}</strong>
                     <span>{{ course.count }} 题</span>
-                    <button class="studio-btn ghost" @click="toggleSelectCourseWrongRecords(course)">选择本课程</button>
-                    <button class="studio-btn ghost" @click="openRedoCourse(major, course)">重做本课程</button>
+                    <button type="button" class="studio-btn ghost" @click="toggleSelectCourseWrongRecords(course)">选择本课程</button>
+                    <button type="button" class="studio-btn ghost" @click="openRedoCourse(major, course)">重做本课程</button>
                   </div>
                   <article v-for="item in course.items" :key="item.id" class="wrongbook-item">
                     <label class="wrongbook-check">
@@ -3133,8 +3133,8 @@ onBeforeUnmount(() => {
                       <p v-if="item.analysis">{{ item.analysis }}</p>
                     </div>
                     <div class="wrongbook-item-actions">
-                      <button class="studio-btn secondary" @click="openRedo(item)">重做</button>
-                      <button class="studio-btn danger" @click="deleteWrongRecord(item)">删除</button>
+                      <button type="button" class="studio-btn secondary" @click="openRedo(item)">重做</button>
+                      <button type="button" class="studio-btn danger" @click="deleteWrongRecord(item)">删除</button>
                     </div>
                   </article>
                 </div>
@@ -3307,8 +3307,8 @@ onBeforeUnmount(() => {
         <div class="studio-title"><span class="studio-title-dot green"></span>考试正在进行</div>
         <p>切换到其它页面前需要先交卷。交卷后会保留本次作答记录，并生成训练诊断和错题沉淀。</p>
         <div class="studio-actions">
-          <button class="studio-btn ghost" @click="cancelSubmitExamAndLeave">继续考试</button>
-          <button class="studio-btn" @click="confirmSubmitExamAndLeave">交卷并离开</button>
+          <button type="button" class="studio-btn ghost" @click="cancelSubmitExamAndLeave">继续考试</button>
+          <button type="button" class="studio-btn" @click="confirmSubmitExamAndLeave">交卷并离开</button>
         </div>
       </section>
     </div>

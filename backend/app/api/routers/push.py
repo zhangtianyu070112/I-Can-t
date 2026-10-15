@@ -103,13 +103,33 @@ async def remove_from_feed(req: PushRemoveRequest) -> ApiResponse:
 async def feedback(req: PushFeedbackRequest) -> ApiResponse:
     request_id = new_id()
     try:
+        resource = next((item for item in list_resources(req.student_id) if item.get("id") == req.resource_id), None)
+        if resource is None:
+            return ApiResponse(
+                request_id=request_id,
+                success=False,
+                error={"code": "PUSH_RESOURCE_NOT_FOUND", "message": "该推送资源不存在或不属于当前学习者"},
+            )
+
+        # Browsers may retry a click after a slow response.  Treat an
+        # identical consecutive feedback action as already completed so a
+        # retry does not create duplicate evidence or trigger evolution twice.
+        previous = [item for item in get_user_usages(req.student_id) if item.get("resource_id") == req.resource_id]
+        if previous:
+            latest = max(previous, key=lambda item: str(item.get("created_at", "")))
+            if latest.get("action") == req.action and latest.get("feedback", {}) == req.feedback:
+                return ApiResponse(
+                    request_id=request_id,
+                    success=True,
+                    data={"ok": True, "resource_id": req.resource_id, "idempotent": True},
+                )
+
         insert_resource_usage(
             student_id=req.student_id, resource_id=req.resource_id, action=req.action, duration_sec=None, feedback=req.feedback
         )
         insert_learning_event(req.student_id, "push_feedback", {"resource_id": req.resource_id, "action": req.action})
         evolution_result = None
         if req.action.lower() in {"dislike", "negative", "too_hard", "not_match"}:
-            resource = next((r for r in list_resources(req.student_id) if r.get("id") == req.resource_id), {})
             evolution_result = await evolution_engine.evaluate_and_evolve(
                 student_id=req.student_id,
                 trigger_event="negative_feedback",
